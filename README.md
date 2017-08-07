@@ -1,5 +1,5 @@
 # datadotworld-singer
-This is a [singer.io](https://singer.io) tap and target for integrating with [data.world](https://data.world)
+This is a [singer.io](https://singer.io) target for integrating with [data.world](https://data.world)
 
 ## installing
 
@@ -8,38 +8,6 @@ This is a [singer.io](https://singer.io) tap and target for integrating with [da
 ```
 $ python setup.py install
 ```
-
-## tap-datadotworld
-The singer Tap for connecting to data.world executes a SQL or SPARQL
-query against data.world, and streams the results as JSON-formatted data
-according to the
-[Singer Spec](https://github.com/singer-io/getting-started/blob/master/SPEC.md).
-
-configuration takes several options:
-```
-{
-  "auth_token": "<INSERT AUTH TOKEN HERE>",
-  "dataset_key": "bryon/odin-2015-2016",
-  "stream": "overall-odin-score-2016",
-  "query": "SELECT country_code, country, overall_subscore FROM odin_2015_2016_standardized WHERE year = ? AND elements = 'All categories' ORDER BY overall_subscore DESC",
-  "parameters": ["2016"]
-}
-
-```
-
-* *auth_token* -
-your data.world API token from https://data.world/settings/advanced
-* *dataset_key* -
-the dataset or project to serve as the base for the query
-* *stream* -
-the name of the stream to produce (defaults to *"results"*)
-* *query* - the query to execute
-* *query_type* -
-the type of query (*"sql"* or *"sparql"*) to execute
-(defaults to *"sql"*)
-* *parameters* - parameters to the query -
-an array of positional parameters for SQL or a dict of named
-parameters for SPARQL (defaults to *None*)
 
 ## target-datadotworld
 The singer Target for connecting to data.world writes the contents of
@@ -69,9 +37,21 @@ the type of output file (*"csv"* or *"jsonl"*) to write (defaults to
 *"csv"*)
 
 ## example
-using the above configurations as `tapconfig.json` and `targetconfig.json`,
-respectively, the following command executes a query with the data.world
-tap and writes the results to a new dataset as a `jsonl` file:
+using the above configurations as `targetconfig.json`, and the following
+configuration for `tapconfig.json`:
+```
+{
+  "auth_token": "<INSERT AUTH TOKEN HERE>",
+  "dataset_key": "bryon/odin-2015-2016",
+  "stream": "overall-odin-score-2016",
+  "query": "SELECT country_code, country, overall_subscore FROM odin_2015_2016_standardized WHERE year = ? AND elements = 'All categories' ORDER BY overall_subscore DESC",
+  "parameters": ["2016"]
+}
+
+```
+
+the following command executes a query with the data.world tap and
+writes the results to a new dataset as a `jsonl` file:
 
 ```
 $ tap-datadotworld -c tapconfig.json | target-datadotworld -c targetconfig.json
