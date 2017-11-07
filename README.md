@@ -1,6 +1,20 @@
 # datadotworld-singer
 This is a [singer.io](https://singer.io) target for integrating with [data.world](https://data.world)
 
+## TODO
+
+[ ] Tests
+[ ] CLI interface
+[ ] Streams API (incl. user agent)
+[ ] Batching
+[ ] Backoff / Retry
+[ ] Validation
+[ ] Exception handling
+[ ] Logging
+[ ] Metrics
+[ ] CircleCI (incl. PyPI)
+[ ] Docs
+
 ## installing
 
 **note** since this isn't yet in pypi, you need to install from source

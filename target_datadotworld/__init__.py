@@ -12,6 +12,7 @@ from datadotworld.util import parse_dataset_key
 from datadotworld.datadotworld import DataDotWorld
 from datadotworld.config import DefaultConfig
 
+__version__ = '0.1.0'
 
 LOGGER = singer.get_logger()
 
