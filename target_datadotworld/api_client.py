@@ -5,7 +5,7 @@ from time import sleep
 import backoff
 import requests
 from requests import Session, Request
-from requests.exceptions import RequestException, HTTPError
+from requests.exceptions import RequestException, HTTPError, ConnectionError
 
 import target_datadotworld.exceptions as dwex
 from target_datadotworld.utils import to_json_lines
@@ -25,11 +25,10 @@ class ApiClient(object):
         except RequestException as e:
             raise ApiClient._wrap_request_exception(e)
 
+
+
     def append_stream(self, owner, dataset, stream, records,
                       max_records_per_batch=None):
-
-        if max_records_per_batch is None:
-            max_records_per_batch = len(records)
 
         for batch in ApiClient._split_records_into_compressed_batches(
                 records, max_records_per_batch):
@@ -47,6 +46,7 @@ class ApiClient(object):
             try:
                 ApiClient._rate_limited_request(request).raise_for_status()
             except RequestException as e:
+                # TODO Decide what to raise when partially successful
                 raise ApiClient._wrap_request_exception(e)
 
     def get_dataset(self, owner, dataset):
@@ -54,18 +54,21 @@ class ApiClient(object):
             resp = requests.get(
                 '{}/datasets/{}/{}'.format(self._api_url, owner, dataset),
                 headers=self._request_headers()
-            ).raise_for_status()
+            )
+            resp.raise_for_status()
             return resp.json()
         except RequestException as e:
             raise ApiClient._wrap_request_exception(e)
 
-    def create_dataset(self, owner, dataset, title, visibility):
+    def create_dataset(self, owner, dataset, **kwargs):
         try:
-            requests.put(
+            resp = requests.put(
                 '{}/datasets/{}/{}'.format(self._api_url, owner, dataset),
-                json={'title': title, 'visibility': visibility},
+                json=kwargs,
                 headers=self._request_headers()
-            ).raise_for_status()
+            )
+            resp.raise_for_status()
+            return resp.json()
         except RequestException as e:
             raise ApiClient._wrap_request_exception(e)
 
@@ -74,9 +77,10 @@ class ApiClient(object):
             addl_headers = {}
 
         headers = {
+            'Accept': 'application/json',
             'Authorization': 'Bearer {}'.format(self._api_token),
-            'User-Agent': ApiClient._user_agent(),
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'User-Agent': ApiClient._user_agent()
         }
 
         for k in addl_headers:
@@ -97,19 +101,26 @@ class ApiClient(object):
 
     @staticmethod
     def _split_records_into_compressed_batches(records, max_records_per_batch):
-        batch = []
-        for i, r in enumerate(records, 1):
-            batch.append(r)
+        def flush_buffer(buffer):
+            data = BytesIO()
+            compressed_batch = gzip.GzipFile(
+                fileobj=data, mode='w')
+            compressed_batch.write(
+                to_json_lines(buffer).encode(encoding='utf-8'))
+            compressed_batch.close()
+            return data.getvalue()
 
-            if len(batch) == max_records_per_batch or i == len(records):
-                data = BytesIO()
-                compressed_batch = gzip.GzipFile(
-                    fileobj=data, mode='w')
-                compressed_batch.write(
-                    to_json_lines(batch).encode(encoding='utf-8'))
-                compressed_batch.close()
-                yield data.getvalue()
-                batch = []
+        buffer = []
+        for i, r in enumerate(records, 1):
+            buffer.append(r)
+
+            if (max_records_per_batch is not None and
+                    len(buffer) == max_records_per_batch):
+                yield flush_buffer(buffer)
+                buffer = []
+
+        yield flush_buffer(buffer)
+
 
     @staticmethod
     def _user_agent():

@@ -1,3 +1,5 @@
 {
-  "tests/target_datadotworld/test_api_client.py": true
+  "tests/target_datadotworld/test_api_client.py::TestApiClient::()::test__request_headers": true,
+  "tests/target_datadotworld/test_api_client.py::TestApiClient::()::test__request_headers_addl": true,
+  "tests/target_datadotworld/test_api_client.py::TestApiClient::()::test__request_headers_replace": true
 }

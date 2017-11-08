@@ -1,3 +1,6 @@
+from json import JSONDecodeError
+
+
 class Error(Exception):
     def __init__(self, message):
         self.message = message
@@ -22,9 +25,13 @@ class TokenError(ConfigError):
 class ApiError(Error):
     def __init__(self, request, response,
                  cause='API Error', solution='Check server message'):
+        try:
+            server_message = response.json().get('message', 'unspecified')
+        except (ValueError, AttributeError):
+            server_message = 'unspecified'
+
         message = 'Error invoking {}: {}. {}. Server message: {}'.format(
-            request.url, cause, solution,
-            response.json().get('message', 'unspecified')
+            request.url, cause, solution, server_message
         )
         super(ApiError, self).__init__(message)
 

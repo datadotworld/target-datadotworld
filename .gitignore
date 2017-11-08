@@ -1,8 +1,9 @@
 /.eggs
 /build
 /dist
+/.cache
+/.idea
 *.pyc
 *.egg-info
+*.json
 __pycache__
-.cache
-.idea
