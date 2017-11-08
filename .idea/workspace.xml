@@ -2,20 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0e9e9e52-d025-48f1-bcd9-a0b5374cd0a8" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.circleci/config.yml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target_datadotworld/api_client.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target_datadotworld/cli.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target_datadotworld/exceptions.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target_datadotworld/target.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target_datadotworld/utils.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/target_datadotworld/test_api_client.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/target_datadotworld/test_cli.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/target_datadotworld/test_target.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/target_datadotworld/test_utils.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/tests/test_target.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/setup.py" afterPath="$PROJECT_DIR$/setup.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target_datadotworld/__init__.py" afterPath="$PROJECT_DIR$/target_datadotworld/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.cache/v/cache/lastfailed" afterPath="$PROJECT_DIR$/.cache/v/cache/lastfailed" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target_datadotworld/api_client.py" afterPath="$PROJECT_DIR$/target_datadotworld/api_client.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target_datadotworld/exceptions.py" afterPath="$PROJECT_DIR$/target_datadotworld/exceptions.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target_datadotworld/utils.py" afterPath="$PROJECT_DIR$/target_datadotworld/utils.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/target_datadotworld/test_api_client.py" afterPath="$PROJECT_DIR$/tests/target_datadotworld/test_api_client.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -25,8 +17,17 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test_connection_check_401.coverage" NAME="py.test for test_api_client.TestApiClient.test_connection_check_401 Coverage Results" MODIFIED="1510088027170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test__request_headers_replace.coverage" NAME="py.test for test_api_client.TestApiClient.test__request_headers_replace Coverage Results" MODIFIED="1510113983029" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test_connection_check_401.coverage" NAME="py.test for test_api_client.TestApiClient.test_connection_check_401 Coverage Results" MODIFIED="1510112768189" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test__wrap_request_exception_http.coverage" NAME="py.test for test_api_client.TestApiClient.test__wrap_request_exception_http Coverage Results" MODIFIED="1510119873034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test__request_headers.coverage" NAME="py.test for test_api_client.TestApiClient.test__request_headers Coverage Results" MODIFIED="1510113056676" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$api_client.coverage" NAME="api_client Coverage Results" MODIFIED="1510112307563" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test__rate_limited_request_error.coverage" NAME="py.test for test_api_client.TestApiClient.test__rate_limited_request_error Coverage Results" MODIFIED="1510116071210" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test__rate_limited_request.coverage" NAME="py.test for test_api_client.TestApiClient.test__rate_limited_request Coverage Results" MODIFIED="1510116314069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
     <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test_connection_check_offline.coverage" NAME="py.test for test_api_client.TestApiClient.test_connection_check_offline Coverage Results" MODIFIED="1510088030953" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test__request_headers_addl.coverage" NAME="py.test for test_api_client.TestApiClient.test__request_headers_addl Coverage Results" MODIFIED="1510113958939" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test__wrap_request_exception_offline.coverage" NAME="py.test for test_api_client.TestApiClient.test__wrap_request_exception_offline Coverage Results" MODIFIED="1510119887198" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
+    <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test__split_records_into_compressed_batches.coverage" NAME="py.test for test_api_client.TestApiClient.test__split_records_into_compressed_batches Coverage Results" MODIFIED="1510119170736" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
     <SUITE FILE_PATH="coverage/target_datadotworld$py_test_for_test_api_client_TestApiClient_test_connection_check.coverage" NAME="py.test for test_api_client.TestApiClient.test_connection_check Coverage Results" MODIFIED="1510088023193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/target_datadotworld" />
   </component>
   <component name="DatabaseView">
@@ -47,8 +48,8 @@
       <file leaf-file-name="api_client.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/target_datadotworld/api_client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="123">
-              <caret line="44" column="35" lean-forward="false" selection-start-line="44" selection-start-column="35" selection-end-line="44" selection-end-column="35" />
+            <state relative-caret-position="337">
+              <caret line="36" column="23" lean-forward="false" selection-start-line="36" selection-start-column="23" selection-end-line="36" selection-end-column="23" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -64,6 +65,14 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>redis</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>public abstract</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -82,9 +91,10 @@
         <option value="$PROJECT_DIR$/tests/target_datadotworld/test_utils.py" />
         <option value="$PROJECT_DIR$/tests/target_datadotworld/test_cli.py" />
         <option value="$PROJECT_DIR$/setup.py" />
-        <option value="$PROJECT_DIR$/target_datadotworld/exceptions.py" />
         <option value="$PROJECT_DIR$/target_datadotworld/__init__.py" />
         <option value="$PROJECT_DIR$/tests/target_datadotworld/test_target.py" />
+        <option value="$PROJECT_DIR$/target_datadotworld/exceptions.py" />
+        <option value="$PROJECT_DIR$/target_datadotworld/utils.py" />
         <option value="$PROJECT_DIR$/tests/target_datadotworld/test_api_client.py" />
         <option value="$PROJECT_DIR$/target_datadotworld/api_client.py" />
       </list>
@@ -221,8 +231,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.py.test for test_api_client.TestApiClient.test_connection_check_offline">
-    <configuration default="false" name="py.test for test_api_client.TestApiClient.test_connection_check" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.py.test for test_api_client.TestApiClient.test__wrap_request_exception_offline">
+    <configuration default="false" name="py.test for test_api_client.TestApiClient.test__rate_limited_request" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -235,11 +245,11 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_api_client.TestApiClient.test_connection_check&quot;" />
+      <option name="_new_target" value="&quot;test_api_client.TestApiClient.test__rate_limited_request&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method />
     </configuration>
-    <configuration default="false" name="py.test for test_api_client.TestApiClient.test_connection_check_401" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="py.test for test_api_client.TestApiClient.test__rate_limited_request_error" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -252,11 +262,11 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_api_client.TestApiClient.test_connection_check_401&quot;" />
+      <option name="_new_target" value="&quot;test_api_client.TestApiClient.test__rate_limited_request_error&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method />
     </configuration>
-    <configuration default="false" name="py.test for test_api_client.TestApiClient.test_connection_check_offline" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="py.test for test_api_client.TestApiClient.test__split_records_into_compressed_batches" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -269,7 +279,41 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_api_client.TestApiClient.test_connection_check_offline&quot;" />
+      <option name="_new_target" value="&quot;test_api_client.TestApiClient.test__split_records_into_compressed_batches&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method />
+    </configuration>
+    <configuration default="false" name="py.test for test_api_client.TestApiClient.test__wrap_request_exception_http" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/target_datadotworld" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="target-datadotworld" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_api_client.TestApiClient.test__wrap_request_exception_http&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method />
+    </configuration>
+    <configuration default="false" name="py.test for test_api_client.TestApiClient.test__wrap_request_exception_offline" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/target_datadotworld" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="target-datadotworld" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_api_client.TestApiClient.test__wrap_request_exception_offline&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method />
     </configuration>
@@ -683,16 +727,20 @@
       <envs />
       <method />
     </configuration>
-    <list size="3">
-      <item index="0" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test_connection_check" />
-      <item index="1" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test_connection_check_401" />
-      <item index="2" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test_connection_check_offline" />
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__rate_limited_request" />
+      <item index="1" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__rate_limited_request_error" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__split_records_into_compressed_batches" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__wrap_request_exception_http" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__wrap_request_exception_offline" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test_connection_check_offline" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test_connection_check_401" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test_connection_check" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__wrap_request_exception_offline" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__wrap_request_exception_http" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__split_records_into_compressed_batches" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__rate_limited_request" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.py.test for test_api_client.TestApiClient.test__rate_limited_request_error" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" default="true" selected="false">
@@ -708,35 +756,35 @@
     <option name="remove_strategy" value="false" />
   </component>
   <component name="TestHistory">
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check - 2017.11.07 at 14h 09m 55s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__split_records_into_compressed_batches - 2017.11.07 at 23h 22m 13s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__split_records_into_compressed_batches" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check - 2017.11.07 at 14h 52m 43s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__split_records_into_compressed_batches - 2017.11.07 at 23h 22m 32s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__split_records_into_compressed_batches" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check - 2017.11.07 at 14h 53m 01s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__split_records_into_compressed_batches - 2017.11.07 at 23h 22m 52s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__split_records_into_compressed_batches" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check - 2017.11.07 at 14h 53m 43s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__split_records_into_compressed_batches - 2017.11.07 at 23h 32m 51s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__split_records_into_compressed_batches" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check_401 - 2017.11.07 at 14h 14m 48s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check_401" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__wrap_request_exception_http - 2017.11.07 at 23h 33m 01s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__wrap_request_exception_http" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check_401 - 2017.11.07 at 14h 15m 16s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check_401" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__wrap_request_exception_http - 2017.11.07 at 23h 39m 12s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__wrap_request_exception_http" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check_401 - 2017.11.07 at 14h 53m 47s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check_401" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__wrap_request_exception_http - 2017.11.07 at 23h 40m 18s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__wrap_request_exception_http" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check_offline - 2017.11.07 at 14h 35m 43s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check_offline" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__wrap_request_exception_http - 2017.11.07 at 23h 43m 04s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__wrap_request_exception_http" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check_offline - 2017.11.07 at 14h 36m 26s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check_offline" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__wrap_request_exception_http - 2017.11.07 at 23h 44m 33s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__wrap_request_exception_http" configurationId="tests" />
     </history-entry>
-    <history-entry file="py_test_for_test_api_client_TestApiClient_test_connection_check_offline - 2017.11.07 at 14h 53m 51s.xml">
-      <configuration name="py.test for test_api_client.TestApiClient.test_connection_check_offline" configurationId="tests" />
+    <history-entry file="py_test_for_test_api_client_TestApiClient_test__wrap_request_exception_offline - 2017.11.07 at 23h 44m 47s.xml">
+      <configuration name="py.test for test_api_client.TestApiClient.test__wrap_request_exception_offline" configurationId="tests" />
     </history-entry>
   </component>
   <component name="TodoView">
@@ -750,7 +798,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.329602" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -758,7 +805,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.329602" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.329602" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.329602" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Regex" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -766,7 +813,7 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.329602" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39925373" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
       <window_info id="Key Promoter" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -809,7 +856,9 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="antWorkspaceConfiguration">
@@ -914,39 +963,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/target_datadotworld/exceptions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
-          <folding>
-            <marker date="1510086942000" expanded="true" signature="23:259" ph="..." />
-            <marker date="1510086942000" expanded="true" signature="56:87" ph="..." />
-            <marker date="1510086942000" expanded="true" signature="111:139" ph="..." />
-            <marker date="1510086942000" expanded="true" signature="164:259" ph="..." />
-            <marker date="1510086942000" expanded="true" signature="287:296" ph="..." />
-            <marker date="1510086942000" expanded="true" signature="329:338" ph="..." />
-            <marker date="1510086942000" expanded="true" signature="370:379" ph="..." />
-            <marker date="1510086942000" expanded="true" signature="413:422" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/target_datadotworld/target.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/target_datadotworld/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/target_datadotworld/test_cli.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -997,31 +1013,6 @@
             <marker date="1510080313000" expanded="true" signature="97:106" ph="..." />
             <marker date="1510080313000" expanded="true" signature="140:149" ph="..." />
             <marker date="1510080313000" expanded="true" signature="184:193" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/target_datadotworld/test_api_client.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="31" column="23" lean-forward="false" selection-start-line="31" selection-start-column="23" selection-end-line="31" selection-end-column="23" />
-          <folding>
-            <marker date="1510088023000" expanded="true" signature="0:178" ph="import ..." />
-            <marker date="1510088023000" expanded="true" signature="209:1615" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="258:314" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="364:583" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="411:583" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="637:916" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="684:916" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="974:1252" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="1021:1252" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="1288:1301" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="1341:1354" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="1396:1409" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="1444:1457" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="1496:1509" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="1548:1561" ph="..." />
-            <marker date="1510088023000" expanded="true" signature="1602:1615" ph="..." />
           </folding>
         </state>
       </provider>
@@ -2312,10 +2303,402 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/target_datadotworld/target.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.virtualenvs/target-dw/lib/python3.6/site-packages/requests/exceptions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="134">
+          <caret line="11" column="6" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
+          <folding>
+            <marker date="1510074222000" expanded="true" signature="25:127" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="220:788" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="225:315" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="357:788" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="825:859" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="902:941" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="978:1012" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1047:1080" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1115:1297" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1120:1297" ph="&quot;&quot;&quot;The request timed out....&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="1347:1488" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1352:1488" ph="&quot;&quot;&quot;The request timed out while trying to connect to the remote server....&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="1518:1593" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1632:1685" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1729:1759" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1812:1870" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1923:1968" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2018:2066" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2119:2176" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2224:2298" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2361:2405" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2463:2524" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2562:2600" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2649:2718" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2764:2810" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2872:2966" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="3018:3102" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.virtualenvs/target-dw/lib/python3.6/site-packages/backoff/_wait_gen.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="4" lean-forward="false" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="4" />
+          <folding>
+            <marker date="1510084554000" expanded="true" signature="60:618" ph="..." />
+            <marker date="1510084554000" expanded="true" signature="65:433" ph="&quot;&quot;&quot;Generator for exponential decay....&quot;&quot;&quot;" />
+            <marker date="1510084554000" expanded="true" signature="459:618" ph="..." />
+            <marker date="1510084554000" expanded="true" signature="537:576" ph="..." />
+            <marker date="1510084554000" expanded="true" signature="646:1065" ph="..." />
+            <marker date="1510084554000" expanded="true" signature="651:892" ph="&quot;&quot;&quot;Generator for fibonaccial decay....&quot;&quot;&quot;" />
+            <marker date="1510084554000" expanded="true" signature="928:1065" ph="..." />
+            <marker date="1510084554000" expanded="true" signature="975:1023" ph="..." />
+            <marker date="1510084554000" expanded="true" signature="1093:1250" ph="..." />
+            <marker date="1510084554000" expanded="true" signature="1098:1211" ph="&quot;&quot;&quot;Generator for constant intervals....&quot;&quot;&quot;" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/target_datadotworld/exceptions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="28" column="39" lean-forward="false" selection-start-line="28" selection-start-column="39" selection-end-line="28" selection-end-column="39" />
+          <folding>
+            <marker date="1510112768000" expanded="true" signature="23:314" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="56:87" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="111:194" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="219:314" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="342:351" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="384:393" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="418:762" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="530:762" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="797:1020" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="928:1020" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="1057:1287" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="1189:1287" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="1321:1583" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="1488:1583" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="1616:1864" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="1770:1864" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="1904:2159" ph="..." />
+            <marker date="1510112768000" expanded="true" signature="2059:2159" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.virtualenvs/target-dw/lib/python3.6/site-packages/urllib3/_collections.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="179">
+          <caret line="151" column="0" lean-forward="false" selection-start-line="151" selection-start-column="0" selection-end-line="151" selection-end-column="0" />
+          <folding>
+            <marker date="1510074222000" expanded="false" signature="0:86" ph="import ..." />
+            <marker date="1510074222000" expanded="true" signature="143:327" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="203:327" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="232:249" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="310:327" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="634:2941" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="639:1046" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="1134:1282" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1315:1520" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1412:1520" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1560:2162" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1614:2055" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="1786:1928" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2195:2332" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2356:2420" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2445:2538" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2560:2845" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2584:2740" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2771:2845" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2866:2941" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2981:10203" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="2986:4128" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="4177:4495" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="4296:4444" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="4533:4627" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="4660:4737" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="4770:4811" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="4845:4891" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="4921:5243" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="5273:5311" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="5328:5430" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="5479:5515" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="5540:5662" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="5705:6309" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="5714:5889" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="5898:6086" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="6154:6244" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="6258:6309" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="6338:6419" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="6449:6948" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="6458:6690" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="6988:7931" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="6997:7195" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510074222000" expanded="true" signature="7221:7359" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="7250:7340" ph="&quot;...&quot;" />
+            <marker date="1510074222000" expanded="true" signature="7456:7538" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="7579:7651" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="7688:7767" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="7781:7855" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="7978:8324" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="8188:8282" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="8544:8617" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="8651:8886" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="8677:8886" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="8752:8831" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="8907:8988" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9014:9226" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9110:9226" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9253:9443" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9351:9443" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9465:9503" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9557:10203" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9645:9842" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9901:10174" ph="..." />
+            <marker date="1510074222000" expanded="true" signature="9946:10080" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/target_datadotworld/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="31" lean-forward="false" selection-start-line="4" selection-start-column="31" selection-end-line="4" selection-end-column="31" />
+          <folding>
+            <marker date="1510117853000" expanded="true" signature="41:124" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.virtualenvs/target-dw/lib/python3.6/site-packages/responses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="179">
+          <caret line="225" column="8" lean-forward="false" selection-start-line="225" selection-start-column="8" selection-end-line="225" selection-end-column="8" />
+          <folding>
+            <marker date="1510084275000" expanded="false" signature="0:498" ph="import ..." />
+            <marker date="1510084275000" expanded="true" signature="804:928" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="1096:1182" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510084275000" expanded="true" signature="1244:1287" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="1317:1612" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="1326:1397" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="1424:1612" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="1665:2522" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="1670:1805" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="1888:2004" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2557:2923" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2581:2606" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2631:2664" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2688:2720" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2753:2785" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2824:2876" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2898:2923" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2960:3137" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="2984:3122" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="3163:3330" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="3360:6453" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="3466:3694" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="3724:4363" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="3873:4111" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="4393:4431" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="4479:5376" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="4872:5356" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="5442:5884" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="5470:5752" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="5582:5752" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="5912:6120" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="6158:6192" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="6225:6453" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="6485:7893" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="6765:7452" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="6774:6857" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="6886:7045" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="7490:7893" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="7933:8809" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="8133:8306" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="8344:8809" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="8839:16761" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="9160:9398" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="9420:9475" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="9676:10795" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="9685:10495" ph="&quot;&quot;&quot;A basic request:...&quot;&quot;&quot;" />
+            <marker date="1510084275000" expanded="true" signature="10540:10600" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="10832:11183" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="10841:11138" ph="&quot;&quot;&quot;Register a URL prefix to passthru any non-matching mock requests to....&quot;&quot;&quot;" />
+            <marker date="1510084275000" expanded="true" signature="11241:11866" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="11250:11596" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510084275000" expanded="true" signature="12031:12749" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="12040:12443" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510084275000" expanded="true" signature="12556:12662" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="12958:13345" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="12967:13094" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="13381:13408" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="13434:13475" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="13524:13639" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="13670:13785" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="13822:14244" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="13920:14217" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="13959:14217" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="13993:14063" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="14085:14217" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="14300:15895" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="14416:15033" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="14479:14683" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="14564:14629" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="15047:15166" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="15204:15381" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="15462:15668" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="15917:16306" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="16082:16150" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="16346:16761" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="16585:16761" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="16688:16758" ph="..." />
+            <marker date="1510084275000" expanded="true" signature="16999:17081" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.virtualenvs/target-dw/lib/python3.6/site-packages/_pytest/python_api.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="481" column="44" lean-forward="false" selection-start-line="481" selection-start-column="44" selection-end-line="481" selection-end-column="44" />
+          <folding>
+            <marker date="1510076893000" expanded="false" signature="0:130" ph="import ..." />
+            <marker date="1510076893000" expanded="true" signature="173:574" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="178:448" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="635:1632" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="640:760" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="829:937" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="962:996" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="1027:1144" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="1061:1142" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="1196:1232" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="1341:1420" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="1463:1632" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="1472:1598" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="1665:2834" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="1670:1735" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="1852:2059" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="1861:1955" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="2165:2468" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="2511:2834" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="2548:2738" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="2869:3444" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="2874:2995" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="3020:3152" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="3078:3149" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="3183:3316" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="3359:3444" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="3480:4132" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="3485:3558" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="3675:3897" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="3928:4046" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="4089:4132" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="4166:8283" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="4171:4243" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="4268:5274" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="4277:4543" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="4638:4721" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="4807:4933" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="5305:6451" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="5314:5443" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="5554:5718" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="5830:6254" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="6512:8283" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="6521:6733" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="6770:6809" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="6819:6943" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="7255:7370" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="7399:7478" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="7488:7832" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="8341:16464" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="8346:15177" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="15284:16147" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="16492:16918" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="16497:16644" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="16706:16900" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="16744:16900" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="16761:16847" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="17001:22215" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="17006:20676" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1510076893000" expanded="true" signature="20717:20807" ph="&quot;...&quot;" />
+            <marker date="1510076893000" expanded="true" signature="20854:20975" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="20893:20975" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="21175:21456" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="21281:21386" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="21491:22029" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="21716:21945" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="21842:21945" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="22039:22197" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="22282:23399" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="22347:22496" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="22522:22617" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="22647:23399" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="22775:23083" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="22788:22924" ph="..." />
+            <marker date="1510076893000" expanded="true" signature="22977:23083" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/target_datadotworld/test_api_client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1896">
+          <caret line="160" column="44" lean-forward="false" selection-start-line="160" selection-start-column="44" selection-end-line="160" selection-end-column="44" />
+          <folding>
+            <marker date="1510119887000" expanded="true" signature="0:405" ph="import ..." />
+            <marker date="1510119887000" expanded="true" signature="436:6039" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="484:540" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="616:673" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="708:721" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="760:773" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="812:825" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="866:879" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="929:1146" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="976:1146" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="1200:1477" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="1247:1477" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="1535:1813" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="1582:1813" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="1849:1862" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="1902:1915" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="1948:1961" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="2003:2016" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="2066:2231" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="2286:2525" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="2347:2386" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="2583:2891" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="2644:2693" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="2934:3313" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="2981:3313" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="3364:4194" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="3411:4194" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="3484:3894" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="3579:3761" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="3783:3894" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="4243:4549" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="4290:4549" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="4618:4988" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="4776:4988" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="5050:5266" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="5370:5670" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="5487:5670" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="5723:6039" ph="..." />
+            <marker date="1510119887000" expanded="true" signature="5850:6039" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/target_datadotworld/api_client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="123">
-          <caret line="44" column="35" lean-forward="false" selection-start-line="44" selection-start-column="35" selection-end-line="44" selection-end-column="35" />
+        <state relative-caret-position="337">
+          <caret line="36" column="23" lean-forward="false" selection-start-line="36" selection-start-column="23" selection-end-line="36" selection-end-column="23" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
