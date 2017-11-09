@@ -1,10 +1,21 @@
 import json
 import re
 
+from itertools import count, groupby
 
-def to_json_lines(records):
+
+def to_jsonlines(records):
     json_lines = [json.dumps(r) for r in records]
     return '\n'.join(json_lines)
+
+
+def to_jsonlines_chunks(records, chunk_size):
+    c = count()
+    for _, g in groupby(
+            records,
+            lambda _: (next(c) // chunk_size
+                       if chunk_size is not None else None)):
+        yield to_jsonlines(g)
 
 
 def to_stream_id(stream_name):
@@ -13,6 +24,7 @@ def to_stream_id(stream_name):
 
 def to_dataset_id(dataset_title):
     return kebab_case(dataset_title)[0:95]
+
 
 # lodash/pydash style kebab_case implementation
 

@@ -1,14 +1,17 @@
-import json
 from copy import copy
+from copy import copy
+from json import JSONDecodeError
 
 import jwt
 import singer
-from jsonschema import validate, ValidationError
+
+from jsonschema import validate, ValidationError, SchemaError
 from jwt import DecodeError
 
+from target_datadotworld import logger
 from target_datadotworld.api_client import ApiClient
 from target_datadotworld.exceptions import NotFoundError, TokenError, \
-    ConfigError
+    ConfigError, Error, MissingSchemaError, InvalidRecordError
 from target_datadotworld.utils import to_dataset_id, to_stream_id
 
 CONFIG_SCHEMA = config_schema = {
@@ -67,8 +70,6 @@ class TargetDataDotWorld(object):
         self._api_client = kwargs.get('api_client',
                                       ApiClient(self.config['api_token']))
 
-        self._logger = singer.get_logger()
-
     def process_lines(self, lines):
 
         state = None
@@ -82,6 +83,9 @@ class TargetDataDotWorld(object):
                 self.config['default_owner'],
                 to_dataset_id(self.config['dataset_title']))
         except NotFoundError:
+            logger.info('Creating new dataset {}/{}'.format(
+                self.config['default_owner'],
+                to_dataset_id(self.config['dataset_title'])))
             self._api_client.create_dataset(
                 self.config['default_owner'],
                 to_dataset_id(self.config['dataset_title']),
@@ -89,21 +93,23 @@ class TargetDataDotWorld(object):
                 visibility=self.config['default_visibility'],
                 license=self.config['default_license'])
 
-        for line in lines:
-            # TODO error handling
+        for i, line in enumerate(lines):
+            logger.debug('Processing message #{}'.format(i))
             try:
                 msg = singer.parse_message(line)
-            except json.decoder.JSONDecodeError:
-                self._logger.error("Unable to parse:\n{}".format(line))
+            except JSONDecodeError:
+                logger.error("Unable to parse:\n{}".format(line))
                 raise
 
             if isinstance(msg, singer.RecordMessage):
                 if msg.stream not in schemas:
-                    raise Exception('A record for stream {} was encountered '
-                                    'before a corresponding schema'.format(
-                        msg.stream))
+                    raise MissingSchemaError(msg.stream)
                 schema = schemas[msg.stream]
-                validate(msg.record, schema)
+
+                try:
+                    validate(msg.record, schema)
+                except (SchemaError, ValidationError) as e:
+                    raise InvalidRecordError(msg.stream, e.message)
 
                 if msg.stream not in buffers:
                     # TODO Convert in-memory buffers into queues
@@ -114,17 +120,21 @@ class TargetDataDotWorld(object):
                 schemas[msg.stream] = msg.schema
                 # TODO Add support for key_properties
             elif isinstance(msg, singer.StateMessage):
-                for stream, buffer in buffers.items():
-                    self._api_client.append_stream(
-                        self.config['default_owner'],
-                        to_dataset_id(self.config['dataset_title']),
-                        to_stream_id(stream),
-                        buffer,
-                        10000)
+                self._flush_buffers(buffers)
                 buffers = {}
                 state = msg.value
 
+        self._flush_buffers(buffers)
         return state
+
+    def _flush_buffers(self, buffers):
+        for stream, buffer in buffers.items():
+            self._api_client.append_stream(
+                self.config['default_owner'],
+                to_dataset_id(self.config['dataset_title']),
+                to_stream_id(stream),
+                buffer,
+                10000)
 
     @property
     def config(self):
@@ -136,16 +146,16 @@ class TargetDataDotWorld(object):
         try:
             validate(config, CONFIG_SCHEMA)
         except ValidationError as e:
-            raise ConfigError('Invalid configuration ({})'.format(e.message))
+            raise ConfigError(cause=e.message)
 
         try:
             decoded_token = jwt.decode(config['api_token'], verify=False)
         except DecodeError:
-            raise TokenError('Unable to decode API token')
+            raise TokenError()
 
         sub_parties = decoded_token['sub'].split(':')
         if len(sub_parties) < 2:
-            raise TokenError('Invalid API token')
+            raise TokenError()
 
         self._config = copy(config)
         self._config['dataset_title'] = (config.get('dataset_title') or

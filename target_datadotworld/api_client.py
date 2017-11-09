@@ -5,10 +5,13 @@ from time import sleep
 import backoff
 import requests
 from requests import Session, Request
-from requests.exceptions import RequestException, HTTPError, ConnectionError
+from requests.adapters import HTTPAdapter
+from requests.exceptions import RequestException
 
-import target_datadotworld.exceptions as dwex
-from target_datadotworld.utils import to_json_lines
+from target_datadotworld.exceptions import convert_requests_exception
+from target_datadotworld.utils import to_jsonlines_chunks
+
+MAX_TRIES = 10
 
 
 class ApiClient(object):
@@ -23,31 +26,32 @@ class ApiClient(object):
                 headers=self._request_headers()
             ).raise_for_status()
         except RequestException as e:
-            raise ApiClient._wrap_request_exception(e)
-
-
+            raise convert_requests_exception(e)
 
     def append_stream(self, owner, dataset, stream, records,
-                      max_records_per_batch=None):
+                      batch_size=None):
 
-        for batch in ApiClient._split_records_into_compressed_batches(
-                records, max_records_per_batch):
-            request = Request(
-                'POST',
-                '{}/streams/{}/{}/{}'.format(
-                    self._api_url, owner, dataset, stream),
-                data=batch,
-                headers=self._request_headers(
-                    addl_headers={
-                        'Content-Type': 'application/json-l',
-                        'Content-Encoding': 'gzip'})
-            ).prepare()
+        with requests.Session() as s:
+            s.mount(self._api_url, GzipAdapter())
 
-            try:
-                ApiClient._rate_limited_request(request).raise_for_status()
-            except RequestException as e:
-                # TODO Decide what to raise when partially successful
-                raise ApiClient._wrap_request_exception(e)
+            for chunk in to_jsonlines_chunks(records, batch_size):
+                request = Request(
+                    'POST',
+                    '{}/streams/{}/{}/{}'.format(
+                        self._api_url, owner, dataset, stream),
+                    data=chunk.encode('utf-8'),
+                    headers=self._request_headers(
+                        addl_headers={
+                            'Content-Type': 'application/json-l'}),
+                ).prepare()
+
+                try:
+                    ApiClient._retry_if_throttled(
+                        request, session=s, timeout=(10, 10)
+                    ).raise_for_status()
+                except RequestException as e:
+                    # TODO Decide what to raise when partially successful
+                    raise convert_requests_exception(e)
 
     def get_dataset(self, owner, dataset):
         try:
@@ -58,7 +62,7 @@ class ApiClient(object):
             resp.raise_for_status()
             return resp.json()
         except RequestException as e:
-            raise ApiClient._wrap_request_exception(e)
+            raise convert_requests_exception(e)
 
     def create_dataset(self, owner, dataset, **kwargs):
         try:
@@ -70,17 +74,18 @@ class ApiClient(object):
             resp.raise_for_status()
             return resp.json()
         except RequestException as e:
-            raise ApiClient._wrap_request_exception(e)
+            raise convert_requests_exception(e)
 
     def _request_headers(self, addl_headers=None):
         if addl_headers is None:
             addl_headers = {}
 
+        from target_datadotworld import __version__
         headers = {
             'Accept': 'application/json',
             'Authorization': 'Bearer {}'.format(self._api_token),
             'Content-Type': 'application/json',
-            'User-Agent': ApiClient._user_agent()
+            'User-Agent': 'target-datadotworld - {}'.format(__version__)
         }
 
         for k in addl_headers:
@@ -90,59 +95,31 @@ class ApiClient(object):
 
     @staticmethod
     @backoff.on_predicate(backoff.expo, lambda r: r.status_code == 429,
-                          max_tries=10)
-    def _rate_limited_request(request, **kwargs):
-        resp = Session().send(request, **kwargs)
+                          max_tries=lambda: MAX_TRIES)
+    def _retry_if_throttled(request, session=None, **kwargs):
+        s = session or Session()
+        resp = s.send(request, **kwargs)
         if (resp.status_code == 429 and
                 resp.headers.get('Retry-After')):
             sleep(int(resp.headers.get('Retry-After')))
 
         return resp
 
-    @staticmethod
-    def _split_records_into_compressed_batches(records, max_records_per_batch):
-        def flush_buffer(buffer):
+
+class GzipAdapter(HTTPAdapter):
+    def add_headers(self, request, **kwargs):
+        request.headers['Content-Encoding'] = 'gzip'
+
+    def send(self, request, stream=False, **kwargs):
+        if stream is True:
+            request.body = gzip.GzipFile(filename=request.url,
+                                         fileobj=request.body)
+        else:
             data = BytesIO()
             compressed_batch = gzip.GzipFile(
                 fileobj=data, mode='w')
-            compressed_batch.write(
-                to_json_lines(buffer).encode(encoding='utf-8'))
+            compressed_batch.write(request.body)
             compressed_batch.close()
-            return data.getvalue()
+            request.body = data.getvalue()
 
-        buffer = []
-        for i, r in enumerate(records, 1):
-            buffer.append(r)
-
-            if (max_records_per_batch is not None and
-                    len(buffer) == max_records_per_batch):
-                yield flush_buffer(buffer)
-                buffer = []
-
-        yield flush_buffer(buffer)
-
-
-    @staticmethod
-    def _user_agent():
-        from target_datadotworld import __version__
-        return 'target-datadotworld - {}'.format(__version__)
-
-    @staticmethod
-    def _wrap_request_exception(req_exception):
-        wrappers = {
-            401: dwex.UnauthorizedError,
-            403: dwex.ForbiddenError,
-            404: dwex.NotFoundError,
-            429: dwex.TooManyRequestsError
-        }
-
-        req = req_exception.request
-        if (isinstance(req_exception, HTTPError) and
-                req_exception.response is not None):
-            resp = req_exception.response
-            wrapper = wrappers.get(resp.status_code, dwex.ApiError)
-            return wrapper(request=req, response=resp)
-        elif isinstance(req_exception, ConnectionError):
-            return dwex.ConnectionError(req_exception.request)
-        else:
-            return req_exception
+        return super(GzipAdapter, self).send(request, stream=stream, **kwargs)

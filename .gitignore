@@ -6,4 +6,5 @@
 *.pyc
 *.egg-info
 *.json
+*.jsonl
 __pycache__

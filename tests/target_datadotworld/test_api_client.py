@@ -1,5 +1,6 @@
 import gzip
 import time
+from math import ceil
 
 import pytest
 import requests
@@ -11,8 +12,9 @@ from requests import Request
 from requests.exceptions import ConnectionError, HTTPError
 
 import target_datadotworld.exceptions as dwex
+from target_datadotworld import api_client
 from target_datadotworld.api_client import ApiClient
-from target_datadotworld.utils import to_json_lines
+from target_datadotworld.utils import to_jsonlines
 
 
 class TestApiClient(object):
@@ -20,7 +22,7 @@ class TestApiClient(object):
     def api_client(self):
         return ApiClient(api_token='just_a_test_token')
 
-    @pytest.fixture(params=[0, 5, 10, 15])
+    @pytest.fixture(params=[5, 10, 15])
     def records_generator(self, request):
         def records_generator(size):
             for i in range(size):
@@ -30,12 +32,27 @@ class TestApiClient(object):
 
     @pytest.mark.parametrize('batch_size', [3, None])
     def test_append_stream(self, api_client, records_generator, batch_size):
+
         with responses.RequestsMock() as rsps:
 
+            all_records = list(records_generator())
             call_count = 0
 
-            def count_call(req):
-                nonlocal call_count
+            def verify_body_and_count(req):
+                nonlocal call_count, all_records, batch_size
+
+                if batch_size is not None:
+                    first_record = call_count * batch_size
+                    last_record = min((call_count + 1) * batch_size,
+                                      len(all_records))
+                    expected_records = all_records[first_record:last_record]
+                else:
+                    expected_records = all_records
+
+                assert_that(
+                    gzip.decompress(req.body).decode('utf-8'),
+                    equal_to(to_jsonlines(expected_records)))
+
                 call_count += 1
                 return 200, {}, None
 
@@ -43,15 +60,15 @@ class TestApiClient(object):
                 'POST',
                 '{}/streams/owner/dataset/stream'.format(
                     api_client._api_url),
-                callback=count_call)
+                callback=verify_body_and_count)
 
             api_client.append_stream(
                 'owner', 'dataset', 'stream', records_generator(),
-                max_records_per_batch=batch_size)
+                batch_size=batch_size)
 
             if batch_size is not None:
                 assert_that(call_count, equal_to(
-                    (len(list(records_generator())) // batch_size) + 1))
+                    (ceil(len(list(records_generator())) / batch_size))))
             else:
                 assert_that(call_count, equal_to(1))
 
@@ -151,16 +168,16 @@ class TestApiClient(object):
         assert_that(headers, has_entry('Content-Type', 'applicatoin/json-l'))
 
     @responses.activate
-    def test__rate_limited_request(self):
+    def test__retry_if_throttled(self):
         responses.add('GET', 'https://acme.inc/api', body='', status=429)
         responses.add('GET', 'https://acme.inc/api', body='', status=200)
 
-        resp = ApiClient._rate_limited_request(
+        resp = ApiClient._retry_if_throttled(
             requests.Request('GET', 'https://acme.inc/api').prepare())
 
         assert_that(resp.status_code, equal_to(200))
 
-    def test__rate_limited_request_delayed(self):
+    def test__retry_if_throttled_delayed(self):
         with responses.RequestsMock() as rsps:
             first_attempt_time = None
 
@@ -168,74 +185,28 @@ class TestApiClient(object):
                 nonlocal first_attempt_time
                 if first_attempt_time is not None:
                     time_between_calls = time.time() - first_attempt_time
-                    assert_that(time_between_calls, close_to(10, 1))
+                    assert_that(time_between_calls, close_to(5, 1))
                     return 200, {}, ''
                 else:
                     first_attempt_time = time.time()
-                    return 429, {'Retry-After': '10'}, ''
+                    return 429, {'Retry-After': '5'}, ''
 
             rsps.add_callback('GET', 'https://acme.inc/api',
                               callback=retry_after)
 
-            resp = ApiClient._rate_limited_request(
+            resp = ApiClient._retry_if_throttled(
                 requests.Request('GET', 'https://acme.inc/api').prepare())
 
             assert_that(resp.status_code, equal_to(200))
 
     @responses.activate
-    def test__rate_limited_request_error(self):
+    def test__retry_if_throttled_error(self, monkeypatch):
+        monkeypatch.setattr(api_client, 'MAX_TRIES', 2)
+
         responses.add('GET', 'https://acme.inc/api', body='', status=429)
 
-        resp = ApiClient._rate_limited_request(
+        resp = ApiClient._retry_if_throttled(
             requests.Request('GET', 'https://acme.inc/api').prepare())
 
         assert_that(resp.status_code, equal_to(429))
 
-    def test__split_records_into_compressed_batches(self, records_generator):
-        all_records = list(records_generator())
-
-        def verify_batch(i, batch):
-            nonlocal all_records
-            first_record = i * 10
-            last_record = min((i + 1) * 10, len(all_records))
-            expected_records = all_records[first_record:last_record]
-            assert_that(
-                gzip.decompress(batch),
-                equal_to(to_json_lines(expected_records).encode()))
-
-        # process generator
-        for i, batch in enumerate(
-                ApiClient._split_records_into_compressed_batches(
-                    records_generator(), max_records_per_batch=10)):
-            verify_batch(i, batch)
-
-        # process list
-        for i, batch in enumerate(
-                ApiClient._split_records_into_compressed_batches(
-                    all_records, max_records_per_batch=10)):
-            verify_batch(i, batch)
-
-    @pytest.mark.parametrize("status_code,expected_error", [
-        (400, dwex.ApiError),
-        (401, dwex.UnauthorizedError),
-        (403, dwex.ForbiddenError),
-        (404, dwex.NotFoundError),
-        (422, dwex.ApiError),
-        (429, dwex.TooManyRequestsError)
-    ])
-    @responses.activate
-    def test__wrap_request_exception_http(self, status_code, expected_error):
-        responses.add('GET', 'https://acme.inc/api', status=status_code)
-        with pytest.raises(expected_error):
-            try:
-                requests.get('https://acme.inc/api').raise_for_status()
-            except HTTPError as e:
-                raise ApiClient._wrap_request_exception(e)
-
-    def test__wrap_request_exception_offline(self):
-        responses.add('GET', 'https://acme.inc/api', body=ConnectionError())
-        with pytest.raises(dwex.ConnectionError):
-            try:
-                requests.get('https://acme.inc/api').raise_for_status()
-            except ConnectionError as e:
-                raise ApiClient._wrap_request_exception(e)

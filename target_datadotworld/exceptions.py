@@ -1,4 +1,24 @@
-from json import JSONDecodeError
+import requests.exceptions as rqex
+
+
+def convert_requests_exception(req_exception):
+    wrappers = {
+        401: UnauthorizedError,
+        403: ForbiddenError,
+        404: NotFoundError,
+        429: TooManyRequestsError
+    }
+
+    req = req_exception.request
+    if (isinstance(req_exception, rqex.HTTPError) and
+            req_exception.response is not None):
+        resp = req_exception.response
+        wrapper = wrappers.get(resp.status_code, ApiError)
+        return wrapper(request=req, response=resp)
+    elif isinstance(req_exception, rqex.ConnectionError):
+        return ConnectionError(req_exception.request)
+    else:
+        return req_exception
 
 
 class Error(Exception):
@@ -15,11 +35,28 @@ class Error(Exception):
 
 
 class ConfigError(Error):
-    pass
+    def __init__(self, cause=None):
+        super(ConfigError, self).__init__(
+            'Invalid configuration (Cause: {})'.format(cause or 'unspecified'))
 
 
 class TokenError(ConfigError):
-    pass
+    def __init__(self):
+        super(TokenError, self).__init__('Invalid API token')
+
+
+class MissingSchemaError(Error):
+    def __init__(self, stream):
+        super(MissingSchemaError, self).__init__(
+            'Found record for stream {} before corresponding '
+            'schema'.format(stream))
+
+
+class InvalidRecordError(Error):
+    def __init__(self, stream, cause):
+        super(InvalidRecordError, self).__init__(
+            'Found invalid record for stream {} (Cause: {})'.format(stream,
+                                                                    cause))
 
 
 class ApiError(Error):
@@ -40,7 +77,6 @@ class ConnectionError(ApiError):
     def __init__(self, request,
                  cause='Unable to connect',
                  solution='Check network connection'):
-
         super(ConnectionError, self).__init__(
             request, None, cause, solution)
 
@@ -49,7 +85,6 @@ class UnauthorizedError(ApiError):
     def __init__(self, request, response,
                  cause='Unauthorized',
                  solution='Check your API token'):
-
         super(UnauthorizedError, self).__init__(
             request, response, cause, solution)
 
@@ -59,7 +94,6 @@ class ForbiddenError(ApiError):
             self, request, response,
             cause='Access denied',
             solution='Check permissions to access resource (e.g. dataset)'):
-
         super(ForbiddenError, self).__init__(
             request, response, cause, solution)
 
@@ -68,7 +102,6 @@ class NotFoundError(ApiError):
     def __init__(self, request, response,
                  cause='Resource (e.g. dataset) does not exist',
                  solution='Check IDs in URL'):
-
         super(NotFoundError, self).__init__(
             request, response, cause, solution)
 
