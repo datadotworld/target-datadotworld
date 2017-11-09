@@ -1,27 +1,50 @@
+import json
 from copy import copy
+from os import path
 
 import pytest
-from doublex import assert_that
-from hamcrest import has_entries
+from doublex import assert_that, ProxySpy, called, Stub
+from hamcrest import has_entries, equal_to, not_none, only_contains, none
+from requests import Request, Response
 
-from target_datadotworld.exceptions import ConfigError
+from target_datadotworld.api_client import ApiClient
+from target_datadotworld.exceptions import ConfigError, NotFoundError, \
+    UnparseableMessageError, MissingSchemaError
 from target_datadotworld.target import TargetDataDotWorld
 
 
 class TestTarget(object):
     @pytest.fixture()
-    def api_client(self):
-        pass
+    def api_client(self, monkeypatch):
+        def create_dataset(self, owner, dataset, **kwargs):
+            assert_that(owner, not_none())
+            assert_that(dataset, not_none())
+            assert_that(kwargs.keys(),
+                        only_contains('title', 'license', 'visibility'))
+
+            return {}
+
+        async def append_stream_chunked(
+                self, owner, dataset, stream, queue, chunk_size):
+            while True:
+                item = await queue.get()
+                queue.task_done()
+                if item is None:
+                    break
+
+        monkeypatch.setattr(ApiClient,
+                            'connection_check', lambda self: True)
+        monkeypatch.setattr(ApiClient,
+                            'get_dataset', lambda self, owner, ds: {})
+        monkeypatch.setattr(ApiClient, 'create_dataset', create_dataset)
+        monkeypatch.setattr(ApiClient, 'append_stream_chunked',
+                            append_stream_chunked)
+
+        return ProxySpy(ApiClient('no_token_needed'))
 
     @pytest.fixture()
-    def logger(self):
-        # TODO verify logging
-        pass
-
-    @pytest.fixture()
-    def metrics(self):
-        # TODO verify metrics
-        pass
+    def target(self, sample_config, api_client):
+        return TargetDataDotWorld(sample_config, api_client=api_client)
 
     @pytest.fixture()
     def sample_config(self):
@@ -91,32 +114,53 @@ class TestTarget(object):
         with pytest.raises(ConfigError):
             TargetDataDotWorld(invalid_config)
 
-    def test_record_single(self):
-        pass
+    @pytest.mark.asyncio
+    async def test_process_lines(self, target, api_client, test_files_path):
+        with open(path.join(test_files_path, 'fixerio.jsonl')) as file:
+            result = await target.process_lines(file)
+            assert_that(api_client.append_stream_chunked, called().times(1))
+            assert_that(result, equal_to(
+                json.loads('{"start_date": "2017-11-09"}')))
 
-    def test_record_multiple(self):
-        pass
+    @pytest.mark.asyncio
+    async def test_process_lines_new_dataset(self, target, api_client,
+                                             test_files_path, monkeypatch):
 
-    def test_record_multiple_streams(self):
-        pass
+        def get_dataset(self, owner, dataset):
+            raise NotFoundError(Stub(Request), Stub(Response))
 
-    def test_record_multiple_batches(self):
-        pass
+        monkeypatch.setattr(ApiClient, 'get_dataset', get_dataset)
 
-    def test_record_invalid(self):
-        pass
+        with open(path.join(test_files_path, 'fixerio.jsonl')) as file:
+            await target.process_lines(file)
+            assert_that(api_client.create_dataset, called())
 
-    def test_schema(self):
-        pass
+    @pytest.mark.asyncio
+    async def test_process_lines_unparseable(self, target,
+                                             test_files_path):
+        with pytest.raises(UnparseableMessageError):
+            with open(path.join(test_files_path,
+                                'fixerio-broken.jsonl')) as file:
+                await target.process_lines(file)
 
-    def test_schema_invalid(self):
-        pass
+    @pytest.mark.asyncio
+    async def test_process_lines_missing_schema(self, target,
+                                                test_files_path):
+        with pytest.raises(MissingSchemaError):
+            with open(path.join(test_files_path,
+                                'fixerio-noschema.jsonl')) as file:
+                await target.process_lines(file)
 
-    def test_schema_missing(self):
-        pass
+    @pytest.mark.asyncio
+    async def test_process_lines_multiple_streams(self, target, api_client,
+                                                  test_files_path):
+        with open(path.join(test_files_path,
+                            'fixerio-multistream.jsonl')) as file:
+            await target.process_lines(file)
+            assert_that(api_client.append_stream_chunked, called().times(2))
 
-    def test_state(self):
-        pass
-
-    def test_unknown_message(self):
-        pass
+    @pytest.mark.asyncio
+    async def test_process_no_state(self, target, test_files_path):
+        with open(path.join(test_files_path, 'fixerio-nostate.jsonl')) as file:
+            result = await target.process_lines(file)
+            assert_that(result, none())

@@ -1,30 +1,30 @@
 import json
 import re
 
-from itertools import count, groupby
-
 
 def to_jsonlines(records):
     json_lines = [json.dumps(r) for r in records]
     return '\n'.join(json_lines)
 
 
-async def to_jsonlines_chunks(queue, chunk_size):
+async def to_chunks(queue, chunk_size):
     lines = []
     while True:
         line = await queue.get()
 
         if line is None:
-            yield to_jsonlines(lines)
+            if len(lines) > 0:
+                yield lines
             queue.task_done()
             break
-        else:
-            lines.append(line)
-            queue.task_done()
+
+        lines.append(line)
 
         if len(lines) == chunk_size:
-            yield to_jsonlines(lines)
+            yield lines
             lines = []
+
+        queue.task_done()
 
 
 def to_stream_id(stream_name):

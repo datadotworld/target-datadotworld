@@ -43,6 +43,7 @@ setup(name='target-datadotworld',
           'pyhamcrest>=1.9.0,<2.0a',
           'responses>=0.8.1,<1.0a',
           'pytest>=3.2.3,<4.0a',
+          'pytest-asyncio>=0.8.0,<1.0a',
       ],
       entry_points={
           'console_scripts': [

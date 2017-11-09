@@ -1,16 +1,19 @@
 import asyncio
+import json
 from copy import copy
-from json import JSONDecodeError
 
 import jwt
+import simplejson
 import singer
 from jsonschema import validate, ValidationError, SchemaError
 from jwt import DecodeError
+from singer import metrics
 
 from target_datadotworld import logger
 from target_datadotworld.api_client import ApiClient
 from target_datadotworld.exceptions import NotFoundError, TokenError, \
-    ConfigError, MissingSchemaError, InvalidRecordError
+    ConfigError, MissingSchemaError, InvalidRecordError, \
+    UnparseableMessageError, Error
 from target_datadotworld.utils import to_dataset_id, to_stream_id
 
 CONFIG_SCHEMA = config_schema = {
@@ -68,13 +71,17 @@ class TargetDataDotWorld(object):
         self.config = config
         self._api_client = kwargs.get('api_client',
                                       ApiClient(self.config['api_token']))
+        self._batch_size = kwargs.get('batch_size', 1000)
 
-    async def process_lines(self, lines, loop):
+    async def process_lines(self, lines, loop=None):
+
+        loop = loop or asyncio.get_event_loop()
 
         state = None
         schemas = {}
         queues = {}
 
+        logger.info('Checking network connectivity')
         self._api_client.connection_check()
 
         try:
@@ -92,40 +99,47 @@ class TargetDataDotWorld(object):
                 visibility=self.config['default_visibility'],
                 license=self.config['default_license'])
 
-        for i, line in enumerate(lines):
-            logger.debug('Processing message #{}'.format(i))
-            try:
-                msg = singer.parse_message(line)
-            except JSONDecodeError:
-                logger.error("Unable to parse:\n{}".format(line))
-                raise
-
-            if isinstance(msg, singer.RecordMessage):
-                if msg.stream not in schemas:
-                    raise MissingSchemaError(msg.stream)
-                schema = schemas[msg.stream]
-
+        with metrics.record_counter() as counter:
+            for line in lines:
                 try:
-                    validate(msg.record, schema)
-                except (SchemaError, ValidationError) as e:
-                    raise InvalidRecordError(msg.stream, e.message)
+                    msg = singer.parse_message(line)
+                except (json.JSONDecodeError, simplejson.JSONDecodeError) as e:
+                    raise UnparseableMessageError(line, str(e))
 
-                if msg.stream not in queues:
-                    queue = asyncio.Queue()
-                    queues[msg.stream] = queue
-                    asyncio.ensure_future(self._api_client.append_stream(
-                        self.config['default_owner'],
-                        to_dataset_id(self.config['dataset_title']),
-                        to_stream_id(msg.stream),
-                        queue,
-                        1000), loop=loop)
+                if isinstance(msg, singer.RecordMessage):
+                    if msg.stream not in schemas:
+                        raise MissingSchemaError(msg.stream)
+                    schema = schemas[msg.stream]
 
-                await queues[msg.stream].put(msg.record)
-            elif isinstance(msg, singer.SchemaMessage):
-                schemas[msg.stream] = msg.schema
-                # TODO Add support for key_properties
-            elif isinstance(msg, singer.StateMessage):
-                state = msg.value
+                    try:
+                        validate(msg.record, schema)
+                    except (SchemaError, ValidationError) as e:
+                        raise InvalidRecordError(msg.stream, e.message)
+
+                    if msg.stream not in queues:
+                        queue = asyncio.Queue(maxsize=self._batch_size)
+                        queues[msg.stream] = queue
+                        asyncio.ensure_future(
+                            self._api_client.append_stream_chunked(
+                                self.config['default_owner'],
+                                to_dataset_id(self.config['dataset_title']),
+                                to_stream_id(msg.stream),
+                                queue,
+                                self._batch_size), loop=loop)
+
+                    await queues[msg.stream].put(msg.record)
+                    counter.increment()
+                    logger.debug('Line #{} in {} queued for upload'.format(
+                        counter.value, msg.stream))
+                elif isinstance(msg, singer.SchemaMessage):
+                    logger.info('Schema found for {}'.format(msg.stream))
+                    schemas[msg.stream] = msg.schema
+                    # TODO Add support for key_properties
+                elif isinstance(msg, singer.StateMessage):
+                    logger.info('State message found: {}'.format(msg.value))
+                    state = msg.value
+                else:
+                    raise Error('Unrecognized message'.format(msg))
 
         for q in queues.values():
             await q.put(None)

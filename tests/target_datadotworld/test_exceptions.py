@@ -1,7 +1,7 @@
 import pytest
 import requests
-import responses
 import requests.exceptions as rqex
+import responses
 
 from target_datadotworld.exceptions import ApiError, UnauthorizedError, \
     ForbiddenError, NotFoundError, TooManyRequestsError, \

@@ -1,8 +1,9 @@
-import json
-
 import asyncio
-import click
+import json
 import logging
+import warnings
+
+import click
 
 from target_datadotworld import logger
 from target_datadotworld.exceptions import Error
@@ -11,13 +12,19 @@ from target_datadotworld.target import TargetDataDotWorld
 
 @click.command()
 @click.option('-c', '--config', required=True,
-              type=click.File('r'), help='Path to config file')
-@click.option('--debug', is_flag='True')
-@click.option('--file', type=click.File('r'))
+              type=click.File('r'),
+              help='Path to config file')
+@click.option('--debug', is_flag='True', default=False)
+@click.option('--file', type=click.File('r'),
+              help='Path to file, if not using stdin')
 @click.pass_context
 def cli(ctx, config, debug, file):
+    loop = asyncio.get_event_loop()
+
     if debug:
         logger.setLevel(logging.DEBUG)
+        warnings.simplefilter('default')
+        loop.set_debug(debug)
 
     try:
         config_obj = json.load(config)
@@ -25,11 +32,8 @@ def cli(ctx, config, debug, file):
         target = TargetDataDotWorld(config_obj)
         data_file = file or click.get_text_stream('stdin')
 
-        loop = asyncio.get_event_loop()
-        loop.set_debug(debug)
-        future = asyncio.ensure_future(target.process_lines(data_file, loop))
+        future = asyncio.ensure_future(target.process_lines(data_file))
         loop.run_until_complete(future)
-        loop.close()
 
         if future.result() is not None:
             line = json.dumps(future.result())
@@ -41,8 +45,11 @@ def cli(ctx, config, debug, file):
     except:
         logger.fatal('Unexpected failure', exc_info=True)
         ctx.exit(1)
+    finally:
+        loop.close()
 
-    logger.debug('Exiting normally')
+    logger.info('Exiting normally')
+
 
 if __name__ == '__main__':
     cli()

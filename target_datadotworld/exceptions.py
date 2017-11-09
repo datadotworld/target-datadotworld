@@ -11,7 +11,7 @@ def convert_requests_exception(req_exception):
 
     req = req_exception.request
     if (isinstance(req_exception, rqex.HTTPError) and
-            req_exception.response is not None):
+                req_exception.response is not None):
         resp = req_exception.response
         wrapper = wrappers.get(resp.status_code, ApiError)
         return wrapper(request=req, response=resp)
@@ -52,6 +52,12 @@ class MissingSchemaError(Error):
             'schema'.format(stream))
 
 
+class UnparseableMessageError(Error):
+    def __init__(self, message, cause):
+        super(UnparseableMessageError, self).__init__(
+            'Unable to parse message {} (Cause: {})'.format(message, cause))
+
+
 class InvalidRecordError(Error):
     def __init__(self, stream, cause):
         super(InvalidRecordError, self).__init__(
@@ -68,7 +74,8 @@ class ApiError(Error):
             server_message = 'unspecified'
 
         message = 'Error invoking {}: {}. {}. Server message: {}'.format(
-            request.url, cause, solution, server_message
+            request.url if hasattr(request, 'url') else 'unspecified',
+            cause, solution, server_message
         )
         super(ApiError, self).__init__(message)
 
