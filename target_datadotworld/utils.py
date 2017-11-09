@@ -9,13 +9,22 @@ def to_jsonlines(records):
     return '\n'.join(json_lines)
 
 
-def to_jsonlines_chunks(records, chunk_size):
-    c = count()
-    for _, g in groupby(
-            records,
-            lambda _: (next(c) // chunk_size
-                       if chunk_size is not None else None)):
-        yield to_jsonlines(g)
+async def to_jsonlines_chunks(queue, chunk_size):
+    lines = []
+    while True:
+        line = await queue.get()
+
+        if line is None:
+            yield to_jsonlines(lines)
+            queue.task_done()
+            break
+        else:
+            lines.append(line)
+            queue.task_done()
+
+        if len(lines) == chunk_size:
+            yield to_jsonlines(lines)
+            lines = []
 
 
 def to_stream_id(stream_name):

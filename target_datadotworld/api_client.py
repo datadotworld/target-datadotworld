@@ -15,6 +15,7 @@ MAX_TRIES = 10
 
 
 class ApiClient(object):
+    # TODO Timeouts & retries everywhere?
     def __init__(self, api_token, **kwargs):
         self._api_url = kwargs.get('api_url', 'https://api.data.world/v0')
         self._api_token = api_token
@@ -28,13 +29,13 @@ class ApiClient(object):
         except RequestException as e:
             raise convert_requests_exception(e)
 
-    def append_stream(self, owner, dataset, stream, records,
-                      batch_size=None):
+    async def append_stream(self, owner, dataset, stream, queue,
+                            batch_size=None):
 
         with requests.Session() as s:
             s.mount(self._api_url, GzipAdapter())
 
-            for chunk in to_jsonlines_chunks(records, batch_size):
+            async for chunk in to_jsonlines_chunks(queue, batch_size):
                 request = Request(
                     'POST',
                     '{}/streams/{}/{}/{}'.format(
@@ -47,7 +48,7 @@ class ApiClient(object):
 
                 try:
                     ApiClient._retry_if_throttled(
-                        request, session=s, timeout=(10, 10)
+                        request, session=s, timeout=(10, 600)
                     ).raise_for_status()
                 except RequestException as e:
                     # TODO Decide what to raise when partially successful
@@ -109,6 +110,7 @@ class ApiClient(object):
 class GzipAdapter(HTTPAdapter):
     def add_headers(self, request, **kwargs):
         request.headers['Content-Encoding'] = 'gzip'
+        request.headers['Content-Length'] = len(request.body)
 
     def send(self, request, stream=False, **kwargs):
         if stream is True:

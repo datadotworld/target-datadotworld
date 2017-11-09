@@ -1,17 +1,16 @@
-from copy import copy
+import asyncio
 from copy import copy
 from json import JSONDecodeError
 
 import jwt
 import singer
-
 from jsonschema import validate, ValidationError, SchemaError
 from jwt import DecodeError
 
 from target_datadotworld import logger
 from target_datadotworld.api_client import ApiClient
 from target_datadotworld.exceptions import NotFoundError, TokenError, \
-    ConfigError, Error, MissingSchemaError, InvalidRecordError
+    ConfigError, MissingSchemaError, InvalidRecordError
 from target_datadotworld.utils import to_dataset_id, to_stream_id
 
 CONFIG_SCHEMA = config_schema = {
@@ -70,11 +69,11 @@ class TargetDataDotWorld(object):
         self._api_client = kwargs.get('api_client',
                                       ApiClient(self.config['api_token']))
 
-    def process_lines(self, lines):
+    async def process_lines(self, lines, loop):
 
         state = None
         schemas = {}
-        buffers = {}
+        queues = {}
 
         self._api_client.connection_check()
 
@@ -111,30 +110,28 @@ class TargetDataDotWorld(object):
                 except (SchemaError, ValidationError) as e:
                     raise InvalidRecordError(msg.stream, e.message)
 
-                if msg.stream not in buffers:
-                    # TODO Convert in-memory buffers into queues
-                    buffers[msg.stream] = []
+                if msg.stream not in queues:
+                    queue = asyncio.Queue()
+                    queues[msg.stream] = queue
+                    asyncio.ensure_future(self._api_client.append_stream(
+                        self.config['default_owner'],
+                        to_dataset_id(self.config['dataset_title']),
+                        to_stream_id(msg.stream),
+                        queue,
+                        1000), loop=loop)
 
-                buffers[msg.stream].append(msg.record)
+                await queues[msg.stream].put(msg.record)
             elif isinstance(msg, singer.SchemaMessage):
                 schemas[msg.stream] = msg.schema
                 # TODO Add support for key_properties
             elif isinstance(msg, singer.StateMessage):
-                self._flush_buffers(buffers)
-                buffers = {}
                 state = msg.value
 
-        self._flush_buffers(buffers)
-        return state
+        for q in queues.values():
+            await q.put(None)
+            await q.join()
 
-    def _flush_buffers(self, buffers):
-        for stream, buffer in buffers.items():
-            self._api_client.append_stream(
-                self.config['default_owner'],
-                to_dataset_id(self.config['dataset_title']),
-                to_stream_id(stream),
-                buffer,
-                10000)
+        return state
 
     @property
     def config(self):

@@ -1,5 +1,6 @@
 import json
 
+import asyncio
 import click
 import logging
 
@@ -22,11 +23,16 @@ def cli(ctx, config, debug, file):
         config_obj = json.load(config)
 
         target = TargetDataDotWorld(config_obj)
-        input = file or click.get_text_stream('stdin')
-        state = target.process_lines(input)
+        data_file = file or click.get_text_stream('stdin')
 
-        if state is not None:
-            line = json.dumps(state)
+        loop = asyncio.get_event_loop()
+        loop.set_debug(debug)
+        future = asyncio.ensure_future(target.process_lines(data_file, loop))
+        loop.run_until_complete(future)
+        loop.close()
+
+        if future.result() is not None:
+            line = json.dumps(future.result())
             logger.debug('Emitting state {}'.format(line))
             click.echo(line)
     except Error as e:
