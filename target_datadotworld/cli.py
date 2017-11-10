@@ -26,6 +26,7 @@ def cli(ctx, config, debug, file):
         warnings.simplefilter('default')
         loop.set_debug(debug)
 
+    # noinspection PyBroadException
     try:
         config_obj = json.load(config)
 

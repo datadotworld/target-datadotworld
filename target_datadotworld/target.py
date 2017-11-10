@@ -80,6 +80,7 @@ class TargetDataDotWorld(object):
         state = None
         schemas = {}
         queues = {}
+        consumers = {}
 
         logger.info('Checking network connectivity')
         self._api_client.connection_check()
@@ -119,7 +120,7 @@ class TargetDataDotWorld(object):
                     if msg.stream not in queues:
                         queue = asyncio.Queue(maxsize=self._batch_size)
                         queues[msg.stream] = queue
-                        asyncio.ensure_future(
+                        consumers[msg.stream] = asyncio.ensure_future(
                             self._api_client.append_stream_chunked(
                                 self.config['default_owner'],
                                 to_dataset_id(self.config['dataset_title']),
@@ -141,9 +142,10 @@ class TargetDataDotWorld(object):
                 else:
                     raise Error('Unrecognized message'.format(msg))
 
-        for q in queues.values():
-            await q.put(None)
-            await q.join()
+        for q in queues:
+            await queues[q].put(None)
+            await queues[q].join()
+            await consumers[q]
 
         return state
 

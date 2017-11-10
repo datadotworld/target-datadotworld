@@ -1,14 +1,11 @@
 import asyncio
 import gzip
 import time
-from math import ceil
 
 import pytest
-import requests
 import responses
 from doublex import assert_that
-from hamcrest import has_entry, contains_inanyorder, \
-    equal_to, close_to
+from hamcrest import equal_to, close_to
 from requests import Request
 from requests.exceptions import ConnectionError
 
@@ -32,7 +29,7 @@ class TestApiClient(object):
                 nonlocal call_count, all_records
 
                 assert_that(
-                    req.body.decode('utf-8'),
+                    gzip.decompress(req.body).decode('utf-8'),
                     equal_to(to_jsonlines(all_records)))
 
                 call_count += 1
@@ -79,13 +76,34 @@ class TestApiClient(object):
                     client._api_url),
                 callback=verify_body_and_count)
 
-            asyncio.ensure_future(client.append_stream_chunked(
+            consumer = asyncio.ensure_future(client.append_stream_chunked(
                 'owner', 'dataset', 'stream', queue,
                 chunk_size=chunk_size), loop=event_loop)
             await queue.join()
+            await consumer
 
-            assert_that(call_count, equal_to(
-                (ceil(len(all_records) / chunk_size))))
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('chunk_size', [3, 5])
+    async def test_append_stream_chunked_error(
+            self, client, records_queue, chunk_size, event_loop):
+
+        queue, all_records = records_queue
+
+        responses.add(
+            'POST',
+            '{}/streams/owner/dataset/stream'.format(client._api_url),
+            status=200)
+        responses.add(
+            'POST',
+            '{}/streams/owner/dataset/stream'.format(client._api_url),
+            status=404)
+
+        with pytest.raises(dwex.ApiError):
+            consumer = asyncio.ensure_future(client.append_stream_chunked(
+                'owner', 'dataset', 'stream', queue,
+                chunk_size=chunk_size), loop=event_loop)
+            await queue.join()
+            await consumer
 
     @responses.activate
     def test_append_stream_error(self, client):
@@ -162,37 +180,17 @@ class TestApiClient(object):
         with pytest.raises(dwex.ApiError):
             client.get_dataset('owner', 'dataset')
 
-    def test__request_headers(self, client):
-        headers = client._request_headers()
-        assert_that(headers.keys(), contains_inanyorder(
-            'Accept', 'Authorization', 'Content-Type', 'User-Agent'))
-
-    def test__request_headers_addl(self, client):
-        headers = client._request_headers(addl_headers={
-            'Content-Encoding': 'gzip'})
-        assert_that(headers.keys(), contains_inanyorder(
-            'Accept', 'Authorization', 'Content-Encoding',
-            'Content-Type', 'User-Agent'))
-
-    def test__request_headers_replace(self, client):
-        headers = client._request_headers(addl_headers={
-            'Content-Type': 'applicatoin/json-l'})
-        assert_that(headers.keys(), contains_inanyorder(
-            'Accept', 'Authorization', 'Content-Type', 'User-Agent'))
-
-        assert_that(headers, has_entry('Content-Type', 'applicatoin/json-l'))
-
     @responses.activate
-    def test__retry_if_throttled(self):
-        responses.add('GET', 'https://acme.inc/api', body='', status=429)
-        responses.add('GET', 'https://acme.inc/api', body='', status=200)
+    def test__retry_if_throttled(self, client):
+        user_endpoint = '{}/user'.format(client._api_url)
+        responses.add('GET', user_endpoint, body='', status=429)
+        responses.add('GET', user_endpoint, body='', status=200)
 
-        resp = ApiClient._retry_if_throttled(
-            requests.Request('GET', 'https://acme.inc/api').prepare())
+        client.connection_check()
 
-        assert_that(resp.status_code, equal_to(200))
+    def test__retry_if_throttled_delayed(self, client):
+        user_endpoint = '{}/user'.format(client._api_url)
 
-    def test__retry_if_throttled_delayed(self):
         with responses.RequestsMock() as rsps:
             first_attempt_time = None
 
@@ -206,21 +204,17 @@ class TestApiClient(object):
                     first_attempt_time = time.time()
                     return 429, {'Retry-After': '5'}, ''
 
-            rsps.add_callback('GET', 'https://acme.inc/api',
+            rsps.add_callback('GET', user_endpoint,
                               callback=retry_after)
 
-            resp = ApiClient._retry_if_throttled(
-                requests.Request('GET', 'https://acme.inc/api').prepare())
-
-            assert_that(resp.status_code, equal_to(200))
+            client.connection_check()
 
     @responses.activate
-    def test__retry_if_throttled_error(self, monkeypatch):
+    def test__retry_if_throttled_error(self, monkeypatch, client):
         monkeypatch.setattr(api_client, 'MAX_TRIES', 2)
+        user_endpoint = '{}/user'.format(client._api_url)
 
-        responses.add('GET', 'https://acme.inc/api', body='', status=429)
+        responses.add('GET', user_endpoint, body='', status=429)
 
-        resp = ApiClient._retry_if_throttled(
-            requests.Request('GET', 'https://acme.inc/api').prepare())
-
-        assert_that(resp.status_code, equal_to(429))
+        with pytest.raises(dwex.TooManyRequestsError):
+            client.connection_check()
