@@ -3,17 +3,17 @@ This is a [singer.io](https://singer.io) target for integrating with [data.world
 
 ## TODO
 
-[ ] Tests
-[ ] CLI interface
-[ ] Streams API (incl. user agent)
-[ ] Batching
-[ ] Backoff / Retry
-[ ] Validation
-[ ] Exception handling
-[ ] Logging
-[ ] Metrics
-[ ] CircleCI (incl. PyPI)
-[ ] Docs
+- [x] Tests   
+- [x] CLI interface  
+- [x] Streams API (incl. user agent)  
+- [x] Batching  
+- [x] Backoff / Retry  
+- [x] Validation  
+- [x] Exception handling  
+- [x] Logging  
+- [x] Metrics  
+- [ ] CircleCI (incl. PyPI)  
+- [ ] Docs
 
 ## installing
 
