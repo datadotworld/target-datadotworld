@@ -3,6 +3,9 @@
 /dist
 /.cache
 /.idea
+/.tox
+.coverage
+.python-version
 *.pyc
 *.egg-info
 *.json

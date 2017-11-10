@@ -1,3 +1,22 @@
+# data.world-py
+# Copyright 2017 data.world, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the
+# License.
+#
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# permissions and limitations under the License.
+#
+# This product includes software developed at
+# data.world, Inc.(http://data.world/).
+
 import json
 from copy import copy
 from os import path
@@ -56,20 +75,21 @@ class TestTarget(object):
                          'yX2FwaV93cml0ZSJdLCJnZW5lcmFsLXB1cnBvc2UiOnRydWV9.n'
                          '9FsdsBZ03wx0A-QK1wq2tGyinaqUcjaotp-rnWCMoMOY83ivypu'
                          'B3FcjTGzJPFIGZbJsES_bx0itijwz5mQvg',
+            'dataset_id': 'my-dataset',
             'dataset_title': 'My Dataset',
-            'default_license': 'Other',
-            'default_owner': 'rafael',
-            'default_visibility': 'PRIVATE'
+            'dataset_license': 'Other',
+            'dataset_owner': 'rafael',
+            'dataset_visibility': 'PRIVATE'
         }
 
     @pytest.fixture(params=[
         ('api_token', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwcm9kLXVzZXItY2xpZW'
                       '50OnJhZmFlbCIsImlzcyI6ImFnZW50OnJhZmFlbDo6YjY1NTgxO'
                       'DItMjRkNy00MWZiLTkxNTAtNjZl'),
-        ('default_license', 'NOTALICENSE'),
-        ('default_owner', 'x'),
-        ('default_owner', 'Mr.X'),
-        ('default_visibility', 'Invisible'),
+        ('dataset_license', 'NOTALICENSE'),
+        ('dataset_owner', 'x'),
+        ('dataset_owner', 'Mr.X'),
+        ('dataset_visibility', 'Invisible'),
         ('dataset_title', 'xyz' * 43),
         ('dataset_title', 'xy'),
         ('namespace', 'me too me too')
@@ -82,11 +102,12 @@ class TestTarget(object):
     def test_config_minimal(self, sample_config):
         minimal_config = {
             'api_token': sample_config['api_token'],
-            'dataset_title': sample_config['dataset_title']
+            'dataset_id': sample_config['dataset_id']
         }
         target = TargetDataDotWorld(minimal_config)
         expected_config = copy(sample_config)
-        expected_config['default_license'] = None
+        expected_config['dataset_license'] = None
+        expected_config['dataset_title'] = expected_config['dataset_id']
         assert_that(target.config, has_entries(expected_config))
 
     def test_config_namespace(self, sample_config):
@@ -96,7 +117,7 @@ class TestTarget(object):
         }
         target = TargetDataDotWorld(minimal_config)
         expected_config = copy(sample_config)
-        expected_config['default_license'] = None
+        expected_config['dataset_license'] = None
         assert_that(target.config, has_entries(expected_config))
 
     def test_config_complete(self, sample_config):
@@ -105,7 +126,7 @@ class TestTarget(object):
 
     def test_config_incomplete(self, sample_config):
         incomplete_config = {
-            'dataset_title': sample_config['dataset_title']
+            'dataset_id': sample_config['dataset_id']
         }
         with pytest.raises(ConfigError):
             TargetDataDotWorld(incomplete_config)

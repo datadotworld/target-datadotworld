@@ -1,3 +1,22 @@
+# data.world-py
+# Copyright 2017 data.world, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the
+# License.
+#
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# permissions and limitations under the License.
+#
+# This product includes software developed at
+# data.world, Inc.(http://data.world/).
+
 import asyncio
 import json
 from copy import copy
@@ -27,27 +46,33 @@ CONFIG_SCHEMA = config_schema = {
             'description': 'data.world API authorization token',
             'type': 'string'
         },
+        'dataset_id': {
+            'description': 'Target dataset id',
+            'type': 'string',
+            'pattern': '[a-z0-9](?:-(?!-)|[a-z0-9]){1,93}[a-z0-9]'
+        },
         'dataset_title': {
-            'description': 'Target dataset title',
+            'description': 'Title for new dataset created',
             'type': 'string',
             'minLength': 3,
             'maxLength': 60
         },
-        'default_license': {
-            'description': 'Default license for new datasets created',
+        'dataset_license': {
+            'description': 'License for new dataset created',
             'type': 'string',
-            'enum': ['Public Domain', 'PDDL', 'CC-0', 'CC-BY',
-                     'ODC-BY', 'CC-BY-SA', 'ODC-ODbL', 'CC BY-NC',
-                     'CC BY-NC-SA', 'Other']
+            'enum': [
+                'Public Domain', 'PDDL', 'CC-0', 'CC-BY',
+                'ODC-BY', 'CC-BY-SA', 'ODC-ODbL', 'CC BY-NC',
+                'CC BY-NC-SA', 'Other'
+            ]
         },
-        'default_visibility': {
-            'description': 'Default visibility '
-                           'for new datasets created',
+        'dataset_visibility': {
+            'description': 'Visibility for new dataset created',
             'type': 'string',
             'enum': ['OPEN', 'PRIVATE']
         },
-        'default_owner': {
-            'description': 'Default account for new datasets created, '
+        'dataset_owner': {
+            'description': 'Account for new dataset created, '
                            'if not the owner of the token',
             'type': 'string',
             'pattern': '[a-z0-9](?:-(?!-)|[a-z0-9]){1,29}[a-z0-9]'
@@ -61,7 +86,7 @@ CONFIG_SCHEMA = config_schema = {
     },
     'oneOf': [
         {'required': ['api_token', 'namespace']},
-        {'required': ['api_token', 'dataset_title']}
+        {'required': ['api_token', 'dataset_id']}
     ]
 }
 
@@ -87,18 +112,18 @@ class TargetDataDotWorld(object):
 
         try:
             self._api_client.get_dataset(
-                self.config['default_owner'],
-                to_dataset_id(self.config['dataset_title']))
+                self.config['dataset_owner'],
+                self.config['dataset_id'])
         except NotFoundError:
             logger.info('Creating new dataset {}/{}'.format(
-                self.config['default_owner'],
-                to_dataset_id(self.config['dataset_title'])))
+                self.config['dataset_owner'],
+                self.config['dataset_id']))
             self._api_client.create_dataset(
-                self.config['default_owner'],
-                to_dataset_id(self.config['dataset_title']),
+                self.config['dataset_owner'],
+                self.config['dataset_id'],
                 title=self.config['dataset_title'],
-                visibility=self.config['default_visibility'],
-                license=self.config['default_license'])
+                visibility=self.config['dataset_visibility'],
+                license=self.config['dataset_license'])
 
         with metrics.record_counter() as counter:
             for line in lines:
@@ -122,8 +147,8 @@ class TargetDataDotWorld(object):
                         queues[msg.stream] = queue
                         consumers[msg.stream] = asyncio.ensure_future(
                             self._api_client.append_stream_chunked(
-                                self.config['default_owner'],
-                                to_dataset_id(self.config['dataset_title']),
+                                self.config['dataset_owner'],
+                                self.config['dataset_id'],
                                 to_stream_id(msg.stream),
                                 queue,
                                 self._batch_size), loop=loop)
@@ -171,10 +196,13 @@ class TargetDataDotWorld(object):
             raise TokenError()
 
         self._config = copy(config)
+        self._config['dataset_id'] = (config.get('dataset_id') or
+                                      to_dataset_id(config.get('namespace')))
         self._config['dataset_title'] = (config.get('dataset_title') or
-                                         config.get('namespace'))
-        self._config['default_owner'] = config.get(
-            'default_owner', sub_parties[1])
-        self._config['default_visibility'] = config.get(
-            'default_visibility', 'PRIVATE')
-        self._config['default_license'] = config.get('default_license')
+                                         config.get('namespace') or
+                                         config.get('dataset_id'))
+        self._config['dataset_owner'] = config.get(
+            'dataset_owner', sub_parties[1])
+        self._config['dataset_visibility'] = config.get(
+            'dataset_visibility', 'PRIVATE')
+        self._config['dataset_license'] = config.get('dataset_license')
