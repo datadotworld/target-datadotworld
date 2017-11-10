@@ -1,6 +1,13 @@
 /.eggs
 /build
 /dist
+/.cache
+/.idea
+/.tox
+.coverage
+.python-version
 *.pyc
 *.egg-info
+*.json
+*.jsonl
 __pycache__
