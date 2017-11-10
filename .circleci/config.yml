@@ -13,9 +13,9 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - tox_cache-{{ checksum "tox.ini" }}
+#      - restore_cache:
+#          keys:
+#            - tox_cache-{{ checksum "tox.ini" }}
 
       - run:
           name: pyenv setup
@@ -26,11 +26,11 @@ jobs:
           name: tox
           command: tox --pre
 
-      - save_cache:
-          key: tox_cache-{{ checksum "tox.ini" }}
-          paths:
-            - .eggs
-            - .tox
+#      - save_cache:
+#          key: tox_cache-{{ checksum "tox.ini" }}
+#          paths:
+#            - .eggs
+#            - .tox
 
       - deploy:
           name: Pre-release to pypi
