@@ -1,4 +1,4 @@
-# data.world-py
+# target-datadotworld
 # Copyright 2017 data.world, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@
 import re
 from os import path
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read(*paths):
@@ -60,7 +60,7 @@ setup(
         'Topic :: Database :: Database Engines/Servers',
         'Topic :: Scientific/Engineering :: Information Analysis',
     ],
-    py_modules=['target_datadotworld'],
+    packages=find_packages(),
     install_requires=[
         'backoff>=1.4.3,<2.0a',
         'click>=6.7,<7.0a',
