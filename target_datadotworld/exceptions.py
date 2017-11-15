@@ -21,6 +21,7 @@ import requests.exceptions as rqex
 
 
 def convert_requests_exception(req_exception):
+    """Convert common HTTP errors to the appropriate ApiError sub-type"""
     wrappers = {
         401: UnauthorizedError,
         403: ForbiddenError,
@@ -41,6 +42,7 @@ def convert_requests_exception(req_exception):
 
 
 class Error(Exception):
+    """Base class for all custom exceptions"""
     def __init__(self, message):
         self.message = message
 
@@ -54,17 +56,32 @@ class Error(Exception):
 
 
 class ConfigError(Error):
+    """Target configuration error
+
+    Used to indicate that the provided config file fails to satisfy this
+    target's requirements
+    """
     def __init__(self, cause=None):
         super(ConfigError, self).__init__(
             'Invalid configuration (Cause: {})'.format(cause or 'unspecified'))
 
 
 class TokenError(ConfigError):
+    """Token configuration error
+
+    Used to indicate that the token provided in the configuration file is
+    invalid (i.e. not a valid JWT)
+    """
     def __init__(self):
         super(TokenError, self).__init__('Invalid API token')
 
 
 class MissingSchemaError(Error):
+    """Missing schema error
+
+    Used to indicate that the tap emitted a RECORD message before emitting
+    a SCHEMA message for the respective stream
+    """
     def __init__(self, stream):
         super(MissingSchemaError, self).__init__(
             'Found record for stream {} before corresponding '
@@ -72,12 +89,21 @@ class MissingSchemaError(Error):
 
 
 class UnparseableMessageError(Error):
+    """Unparseable message error
+
+    Used to indicate that the tap emitted a message that cannot be parsed
+    """
     def __init__(self, message, cause):
         super(UnparseableMessageError, self).__init__(
             'Unable to parse message {} (Cause: {})'.format(message, cause))
 
 
 class InvalidRecordError(Error):
+    """Invalid record error
+
+    Used to indicate that the tap emitted a message whose payload fail to
+    satisfy the required JSON schema
+    """
     def __init__(self, stream, cause):
         super(InvalidRecordError, self).__init__(
             'Found invalid record for stream {} (Cause: {})'.format(stream,
@@ -85,6 +111,7 @@ class InvalidRecordError(Error):
 
 
 class ApiError(Error):
+    """Base class for all API exceptions"""
     def __init__(self, request, response,
                  cause='API Error', solution='Check server message'):
         try:
@@ -100,6 +127,10 @@ class ApiError(Error):
 
 
 class ConnectionError(ApiError):
+    """Connection error
+
+    Used to indicate that the target is unable to connect to data.world's API
+    """
     def __init__(self, request,
                  cause='Unable to connect',
                  solution='Check network connection'):
@@ -108,6 +139,10 @@ class ConnectionError(ApiError):
 
 
 class UnauthorizedError(ApiError):
+    """Unauthorized error
+
+    Used to indicate that the server returned an HTTP 401 error
+    """
     def __init__(self, request, response,
                  cause='Unauthorized',
                  solution='Check your API token'):
@@ -116,6 +151,10 @@ class UnauthorizedError(ApiError):
 
 
 class ForbiddenError(ApiError):
+    """Forbidden error
+
+    Used to indicate that the server returned an HTTP 403 error
+    """
     def __init__(
             self, request, response,
             cause='Access denied',
@@ -125,6 +164,10 @@ class ForbiddenError(ApiError):
 
 
 class NotFoundError(ApiError):
+    """Not Found error
+
+    Used to indicate that the server returned an HTTP 404 error
+    """
     def __init__(self, request, response,
                  cause='Resource (e.g. dataset) does not exist',
                  solution='Check IDs in URL'):
@@ -133,6 +176,10 @@ class NotFoundError(ApiError):
 
 
 class TooManyRequestsError(ApiError):
+    """Too Many Requests error
+
+    Used to indicate that the server returned an HTTP 429 error
+    """
     def __init__(self, request, response,
                  cause='Too many requests',
                  solution='Make less API requests less frequently'):

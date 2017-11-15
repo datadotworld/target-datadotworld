@@ -30,14 +30,23 @@ from target_datadotworld import logger
 from target_datadotworld.exceptions import convert_requests_exception
 from target_datadotworld.utils import to_chunks, to_jsonlines
 
-MAX_TRIES = 10
+MAX_TRIES = 10  # necessary to configure backoff decorator
 
 
 class ApiClient(object):
     def __init__(self, api_token, **kwargs):
+        """Simple client for data.world API
+
+        :param api_token: API Authorization Token
+        :type api_token: str
+        """
         from target_datadotworld import __version__
 
+        # The following properties can be overwritten for testing/tuning
         self._api_url = kwargs.get('api_url', 'https://api.data.world/v0')
+        self._conn_timeout = kwargs.get('connect_timeout', 3.05)
+        self._read_timeout = kwargs.get('read_timeout', 600)
+
         self._session = requests.Session()
         default_headers = {
             'Accept': 'application/json',
@@ -49,10 +58,11 @@ class ApiClient(object):
         self._session.mount(self._api_url,
                             BackoffAdapter(GzipAdapter(HTTPAdapter())))
 
-        self._conn_timeout = kwargs.get('connect_timeout', 3.05)
-        self._read_timeout = kwargs.get('read_timeout', 600)
-
     def connection_check(self):
+        """Verify network connectivity
+
+        Ensures that the client can communicate with data.world's API
+        """
         with metrics.http_request_timer('user'):
             try:
                 self._session.get(
@@ -63,6 +73,19 @@ class ApiClient(object):
                 raise convert_requests_exception(e)
 
     def append_stream(self, owner, dataset, stream, records):
+        """Append records to a stream in a data.world dataset
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+        :param stream: Stream ID
+        :type stream: str
+        :param records: Objects to be appended to the stream
+        :type records: iterable
+
+        :raises ApiError: Failure invoking data.world API
+        """
         with metrics.http_request_timer('append') as t:
             t.tags['stream'] = stream
 
@@ -78,6 +101,21 @@ class ApiClient(object):
 
     async def append_stream_chunked(
             self, owner, dataset, stream, queue, chunk_size):
+        """Asynchronously append records to a stream in a data.world dataset
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+        :param stream: Stream ID
+        :type stream: str
+        :param queue: Queue with objects to be appended to the stream
+        :type queue: asyncio.Queue
+        :param chunk_size: Chunk or batch size
+        :type chunk_size: int
+
+        :raises ApiError: Failure invoking data.world API
+        """
 
         with metrics.Counter(
                 'batch_count', tags={'stream': stream}) as counter:
@@ -90,6 +128,7 @@ class ApiClient(object):
                         logger.info('Uploading {} records in batch #{} '
                                     'from {} stream '.format(
                                         len(chunk), counter.value, stream))
+                        # TODO Invoke append_stream in a separate thread
                         self.append_stream(owner, dataset, stream, chunk)
                         counter.increment()
                     except Exception as e:
@@ -101,6 +140,16 @@ class ApiClient(object):
                 raise delayed_exception
 
     def get_dataset(self, owner, dataset):
+        """Fetch dataset info
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+
+        :returns: Dataset object
+        :rtype: object
+        """
         with metrics.http_request_timer('dataset'):
             try:
                 resp = self._session.get(
@@ -113,6 +162,21 @@ class ApiClient(object):
                 raise convert_requests_exception(e)
 
     def create_dataset(self, owner, dataset, **kwargs):
+        """Create a new dataset
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+        :param kwargs: Dataset properties
+        :type kwargs: dict
+
+        :returns: Response object
+        :rtype: object
+
+        .. seealso:: `Dataset properties
+            <https://apidocs.data.world/v0/models/datasetcreaterequest>`_
+        """
         with metrics.http_request_timer('create_dataset'):
             try:
                 resp = self._session.put(
@@ -128,6 +192,11 @@ class ApiClient(object):
 
 class GzipAdapter(BaseAdapter):
     def __init__(self, delegate):
+        """Requests adapter for compressing request bodies
+
+        :param delegate: Adapter to delegate final request processing to
+        :type delegate: requests.adapters.BaseAdapter
+        """
         self._delegate = delegate
         super(GzipAdapter, self).__init__()
 
@@ -136,6 +205,7 @@ class GzipAdapter(BaseAdapter):
             if stream is True:
                 request.body = gzip.GzipFile(filename=request.url,
                                              fileobj=request.body)
+                #  TODO Confirm that requests will set Content-Length correctly
             else:
                 request.body = gzip.compress(request.body)
                 request.headers['Content-Length'] = len(request.body)
@@ -149,6 +219,11 @@ class GzipAdapter(BaseAdapter):
 
 class BackoffAdapter(BaseAdapter):
     def __init__(self, delegate):
+        """Requests adapter for retrying throttled requests (HTTP 429)
+
+        :param delegate: Adapter to delegate final request processing to
+        :type delegate: requests.adapters.BaseAdapter
+        """
         self._delegate = delegate
         super(BackoffAdapter, self).__init__()
 

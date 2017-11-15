@@ -22,11 +22,31 @@ import re
 
 
 def to_jsonlines(records):
+    """Convert objects into JSON lines
+
+    :param records: Objects to be converted into JSON lines
+    :type records: iterable
+
+    :return: A JSON lines string
+    :rtype: str
+    """
     json_lines = [json.dumps(r) for r in records]
     return '\n'.join(json_lines)
 
 
 async def to_chunks(queue, chunk_size):
+    """Asynchronously convert objects into chunks of JSON lines
+
+    This async generator will consume objects in a queue and emit chunks
+
+    :param queue: Queue with objects
+    :type queue: asyncio.Queue
+    :param chunk_size: Chunk or batch size
+    :type chunk_size: int
+
+    :returns: Chunks of JSON line strings
+    :rtype: str
+    """
     lines = []
     while True:
         line = await queue.get()
@@ -47,10 +67,12 @@ async def to_chunks(queue, chunk_size):
 
 
 def to_stream_id(stream_name):
+    """Convert any string into a valid stream ID"""
     return kebab_case(stream_name)[0:95]
 
 
 def to_dataset_id(dataset_title):
+    """Convert any string into a valid dataset ID"""
     return kebab_case(dataset_title)[0:95]
 
 
