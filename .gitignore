@@ -8,6 +8,5 @@
 .python-version
 *.pyc
 *.egg-info
-*.json
-*.jsonl
+/*.json
 __pycache__
