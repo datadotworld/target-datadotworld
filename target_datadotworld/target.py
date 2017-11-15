@@ -35,6 +35,7 @@ from target_datadotworld.exceptions import NotFoundError, TokenError, \
     UnparseableMessageError, Error
 from target_datadotworld.utils import to_dataset_id, to_stream_id
 
+#: Json schema specifying what is required in the config.json file
 CONFIG_SCHEMA = config_schema = {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "title": 'data.world target configuration',
@@ -93,6 +94,7 @@ CONFIG_SCHEMA = config_schema = {
 
 class TargetDataDotWorld(object):
     def __init__(self, config, **kwargs):
+        """Singer target for data.world"""
         self.config = config
         self._api_client = kwargs.get('api_client',
                                       ApiClient(self.config['api_token']))
@@ -108,7 +110,7 @@ class TargetDataDotWorld(object):
         consumers = {}
 
         logger.info('Checking network connectivity')
-        self._api_client.connection_check()
+        self._api_client.connection_check()  # Fail fast
 
         try:
             self._api_client.get_dataset(
@@ -143,8 +145,11 @@ class TargetDataDotWorld(object):
                         raise InvalidRecordError(msg.stream, e.message)
 
                     if msg.stream not in queues:
+                        # Creates one queue per stream
                         queue = asyncio.Queue(maxsize=self._batch_size)
                         queues[msg.stream] = queue
+
+                        # Schedules one consumer per queue
                         consumers[msg.stream] = asyncio.ensure_future(
                             self._api_client.append_stream_chunked(
                                 self.config['dataset_owner'],
@@ -153,6 +158,7 @@ class TargetDataDotWorld(object):
                                 queue,
                                 self._batch_size), loop=loop)
 
+                    # Add record to queue
                     await queues[msg.stream].put(msg.record)
                     counter.increment()
                     logger.debug('Line #{} in {} queued for upload'.format(
@@ -160,7 +166,8 @@ class TargetDataDotWorld(object):
                 elif isinstance(msg, singer.SchemaMessage):
                     logger.info('Schema found for {}'.format(msg.stream))
                     schemas[msg.stream] = msg.schema
-                    # TODO Add support for key_properties
+                    # Ignoring key_properties as the concept of primary keys
+                    # currently does not apply to data.world
                 elif isinstance(msg, singer.StateMessage):
                     logger.info('State message found: {}'.format(msg.value))
                     state = msg.value
@@ -168,8 +175,11 @@ class TargetDataDotWorld(object):
                     raise Error('Unrecognized message'.format(msg))
 
         for q in queues:
+            # Mark the end of each queue
             await queues[q].put(None)
+            # Wait until all items in the queue are consumed
             await queues[q].join()
+            # Make sure consumers are done
             await consumers[q]
 
         return state

@@ -23,4 +23,4 @@ import singer
 
 __version__ = '1.0.0b1'
 
-logger = copy(singer.get_logger())
+logger = copy(singer.get_logger())  # copy needed in order to set level
