@@ -135,7 +135,7 @@ class ApiClient(object):
                     try:
                         logger.info('Uploading {} records in batch #{} '
                                     'from {} stream '.format(
-                            len(chunk), counter.value, stream))
+                                        len(chunk), counter.value, stream))
 
                         if pending_task is not None:
                             # Force chunks to be appended sequentially
