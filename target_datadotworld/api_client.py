@@ -16,8 +16,9 @@
 #
 # This product includes software developed at
 # data.world, Inc.(http://data.world/).
-
+import functools
 import gzip
+from concurrent.futures import ThreadPoolExecutor
 from time import sleep
 
 import backoff
@@ -46,6 +47,7 @@ class ApiClient(object):
         self._api_url = kwargs.get('api_url', 'https://api.data.world/v0')
         self._conn_timeout = kwargs.get('connect_timeout', 3.05)
         self._read_timeout = kwargs.get('read_timeout', 600)
+        self._max_threads = kwargs.get('max_threads', 10)
 
         self._session = requests.Session()
         default_headers = {
@@ -57,6 +59,11 @@ class ApiClient(object):
         self._session.headers.update(default_headers)
         self._session.mount(self._api_url,
                             BackoffAdapter(GzipAdapter(HTTPAdapter())))
+
+        # Create a limited thread pool.
+        self._executor = ThreadPoolExecutor(
+            max_workers=self._max_threads
+        )
 
     def connection_check(self):
         """Verify network connectivity
@@ -100,7 +107,7 @@ class ApiClient(object):
                 raise convert_requests_exception(e)
 
     async def append_stream_chunked(
-            self, owner, dataset, stream, queue, chunk_size):
+            self, owner, dataset, stream, queue, chunk_size, loop):
         """Asynchronously append records to a stream in a data.world dataset
 
         :param owner: User or organization ID of the owner of the dataset
@@ -122,19 +129,32 @@ class ApiClient(object):
 
             delayed_exception = None
             # noinspection PyTypeChecker
+            pending_task = None
             async for chunk in to_chunks(queue, chunk_size):
                 if delayed_exception is None:
                     try:
                         logger.info('Uploading {} records in batch #{} '
                                     'from {} stream '.format(
                                         len(chunk), counter.value, stream))
-                        # TODO Invoke append_stream in a separate thread
-                        self.append_stream(owner, dataset, stream, chunk)
+
+                        if pending_task is not None:
+                            # Force chunks to be appended sequentially
+                            await pending_task
+
+                        # Call API on separate thread
+                        pending_task = loop.run_in_executor(
+                            self._executor,
+                            functools.partial(self.append_stream,
+                                              owner, dataset, stream, chunk)
+                        )
                         counter.increment()
                     except Exception as e:
                         delayed_exception = e
                 else:
                     pass  # Must exhaust queue
+
+            if pending_task is not None:
+                await pending_task
 
             if delayed_exception is not None:
                 raise delayed_exception
