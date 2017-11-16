@@ -156,7 +156,7 @@ class TargetDataDotWorld(object):
                                 self.config['dataset_id'],
                                 to_stream_id(msg.stream),
                                 queue,
-                                self._batch_size), loop=loop)
+                                self._batch_size, loop=loop), loop=loop)
 
                     # Add record to queue
                     await queues[msg.stream].put(msg.record)

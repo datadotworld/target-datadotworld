@@ -44,7 +44,7 @@ class TestTarget(object):
             return {}
 
         async def append_stream_chunked(
-                self, owner, dataset, stream, queue, chunk_size):
+                self, owner, dataset, stream, queue, chunk_size, loop):
             while True:
                 item = await queue.get()
                 queue.task_done()

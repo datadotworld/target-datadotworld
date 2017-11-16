@@ -97,7 +97,7 @@ class TestApiClient(object):
 
             consumer = asyncio.ensure_future(client.append_stream_chunked(
                 'owner', 'dataset', 'stream', queue,
-                chunk_size=chunk_size), loop=event_loop)
+                chunk_size=chunk_size, loop=event_loop), loop=event_loop)
             await queue.join()
             await consumer
 
@@ -120,7 +120,7 @@ class TestApiClient(object):
         with pytest.raises(dwex.ApiError):
             consumer = asyncio.ensure_future(client.append_stream_chunked(
                 'owner', 'dataset', 'stream', queue,
-                chunk_size=chunk_size), loop=event_loop)
+                chunk_size=chunk_size, loop=event_loop), loop=event_loop)
             await queue.join()
             await consumer
 
