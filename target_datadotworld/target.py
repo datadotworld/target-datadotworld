@@ -171,6 +171,10 @@ class TargetDataDotWorld(object):
                 elif isinstance(msg, singer.StateMessage):
                     logger.info('State message found: {}'.format(msg.value))
                     state = msg.value
+                elif isinstance(msg, singer.ActivateVersionMessage):
+                    logger.info('Version message found: {}/{}'.format(
+                        msg.stream, msg.version))
+                    # TODO Handle Active Version Messages (GH Issue #2)
                 else:
                     raise Error('Unrecognized message'.format(msg))
 
