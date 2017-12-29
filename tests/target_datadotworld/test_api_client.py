@@ -18,7 +18,6 @@
 # data.world, Inc.(http://data.world/).
 
 import asyncio
-import gzip
 import time
 
 import pytest
