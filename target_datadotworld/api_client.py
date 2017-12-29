@@ -213,7 +213,8 @@ class ApiClient(object):
                 raise convert_requests_exception(e)
 
 
-class GzipAdapter(BaseAdapter):
+# TODO Re-enable test coverage (GH issue #10)
+class GzipAdapter(BaseAdapter):  # pragma: no cover
     def __init__(self, delegate):
         """Requests adapter for compressing request bodies
 
