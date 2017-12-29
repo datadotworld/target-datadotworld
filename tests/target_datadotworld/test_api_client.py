@@ -48,7 +48,7 @@ class TestApiClient(object):
                 nonlocal call_count, all_records
 
                 assert_that(
-                    gzip.decompress(req.body).decode('utf-8'),
+                    req.body.decode('utf-8'),
                     equal_to(to_jsonlines(all_records)))
 
                 call_count += 1
@@ -83,7 +83,7 @@ class TestApiClient(object):
                 expected_records = all_records[first_record:last_record]
 
                 assert_that(
-                    gzip.decompress(req.body).decode('utf-8'),
+                    req.body.decode('utf-8'),
                     equal_to(to_jsonlines(expected_records)))
 
                 call_count += 1
