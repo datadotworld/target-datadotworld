@@ -57,8 +57,10 @@ class ApiClient(object):
             'User-Agent': 'target-datadotworld - {}'.format(__version__)
         }
         self._session.headers.update(default_headers)
+
+        # TODO Fix and turn GzipAdapter back on (GH Issue #10)
         self._session.mount(self._api_url,
-                            BackoffAdapter(GzipAdapter(HTTPAdapter())))
+                            BackoffAdapter(HTTPAdapter()))
 
         # Create a limited thread pool.
         self._executor = ThreadPoolExecutor(
@@ -101,7 +103,8 @@ class ApiClient(object):
                     '{}/streams/{}/{}/{}'.format(
                         self._api_url, owner, dataset, stream),
                     data=to_jsonlines(records).encode('utf-8'),
-                    headers={'Content-Type': 'application/json-l'}
+                    headers={'Content-Type':
+                             'application/json-l; charset=utf-8'}
                 ).raise_for_status()
             except RequestException as e:
                 raise convert_requests_exception(e)

@@ -62,12 +62,12 @@ setup(
     ],
     packages=find_packages(),
     install_requires=[
-        'backoff>=1.4.3,<2.0a',
+        'backoff>=1.3.0,<2.0a',
         'click>=6.7,<7.0a',
         'jsonschema>=2.6.0,<3.0a',
         'pyjwt>=1.5.3,<2.0a',
-        'requests>=2.18.4,<3.0a',
-        'singer-python==2.1.0',
+        'requests>=2.4.0,<3.0a',
+        'singer-python>=5.0.4,<6.0a',
     ],
     setup_requires=[
         'pytest-runner>=2.11,<3.0a',
