@@ -29,6 +29,13 @@ from target_datadotworld.exceptions import Error
 from target_datadotworld.target import TargetDataDotWorld
 
 
+async def echo_states(state_gen):
+    async for state in state_gen:
+        if state is not None:
+            logger.debug('Emitting state {}'.format(state))
+            click.echo(json.dumps(state))
+
+
 @click.command()
 @click.option('-c', '--config', required=True,
               type=click.File('r'),
@@ -52,13 +59,8 @@ def cli(ctx, config, debug, file):
         target = TargetDataDotWorld(config_obj)
         data_file = file or click.get_text_stream('stdin')
 
-        future = asyncio.ensure_future(target.process_lines(data_file))
-        loop.run_until_complete(future)
+        loop.run_until_complete(echo_states(target.process_lines(data_file)))
 
-        if future.result() is not None:
-            line = json.dumps(future.result())
-            logger.debug('Emitting state {}'.format(line))
-            click.echo(line)
     except Error as e:
         logger.fatal(e.message)
         ctx.exit(1)

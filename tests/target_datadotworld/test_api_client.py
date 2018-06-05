@@ -22,12 +22,11 @@ import time
 
 import pytest
 import responses
+import target_datadotworld.exceptions as dwex
 from doublex import assert_that
-from hamcrest import equal_to, close_to
+from hamcrest import equal_to, close_to, none
 from requests import Request
 from requests.exceptions import ConnectionError
-
-import target_datadotworld.exceptions as dwex
 from target_datadotworld import api_client
 from target_datadotworld.api_client import ApiClient
 from target_datadotworld.utils import to_jsonlines
@@ -160,6 +159,116 @@ class TestApiClient(object):
 
         with pytest.raises(dwex.ConnectionError):
             client.connection_check()
+
+    @responses.activate
+    def test_get_current_version(self, client):
+        expected_resp = [{'singer_version': 123456}]
+        responses.add(
+            'GET', '{}/sql/owner/dataset'.format(client._api_url),
+            json=expected_resp, status=200
+        )
+
+        cur_version = client.get_current_version('owner', 'dataset', 'stream')
+        assert_that(cur_version, equal_to(expected_resp[0]['singer_version']))
+
+    @responses.activate
+    def test_get_current_version_missing_column(self, client):
+        expected_resp = [{'another_property': 'not_singer_version'}]
+        responses.add(
+            'GET', '{}/sql/owner/dataset'.format(client._api_url),
+            json=expected_resp, status=200
+        )
+
+        cur_version = client.get_current_version('owner', 'dataset', 'stream')
+        assert_that(cur_version, none())
+
+    @responses.activate
+    def test_get_current_version_missing_table(self, client):
+        expected_resp = 'Unknown table \'stream\''
+        responses.add(
+            'GET', '{}/sql/owner/dataset'.format(client._api_url),
+            json=expected_resp, status=400
+        )
+
+        cur_version = client.get_current_version('owner', 'dataset', 'stream')
+        assert_that(cur_version, none())
+
+    @responses.activate
+    def test_get_current_version_error(self, client):
+        responses.add(
+            'GET', '{}/sql/owner/dataset'.format(client._api_url),
+            status=403
+        )
+        with pytest.raises(dwex.ApiError):
+            client.get_current_version('owner', 'dataset',
+                                       'stream')
+
+    @responses.activate
+    def test_set_stream_schema(self, client):
+        expected_resp = {'message': 'Success'}
+        responses.add(
+            'PATCH', '{}/streams/owner/dataset/stream/schema'.format(
+                client._api_url),
+            json=expected_resp, status=200)
+
+        resp = client.set_stream_schema('owner', 'dataset', 'stream',
+                                        primaryKeyFields=['pk'],
+                                        sequenceField='sq',
+                                        updateMethod='TRUNCATE')
+        assert_that(resp, equal_to(expected_resp))
+
+    @responses.activate
+    def test_set_stream_schema_error(self, client):
+        responses.add(
+            'PATCH', '{}/streams/owner/dataset/stream/schema'.format(
+                client._api_url),
+            status=400)
+        with pytest.raises(dwex.ApiError):
+            client.set_stream_schema('owner', 'dataset', 'stream',
+                                     primaryKeyFields=['pk'],
+                                     sequenceField='sq',
+                                     updateMethod='TRUNCATE')
+
+    @responses.activate
+    def test_sync(self, client):
+        expected_resp = {'message': 'Success'}
+        responses.add(
+            'POST', '{}/datasets/owner/dataset/sync'.format(
+                client._api_url),
+            json=expected_resp, status=200)
+
+        resp = client.sync('owner', 'dataset')
+        assert_that(resp, equal_to(expected_resp))
+
+    @responses.activate
+    def test_sync_error(self, client):
+        responses.add(
+            'POST', '{}/datasets/owner/dataset/sync'.format(
+                client._api_url),
+            status=400)
+
+        with pytest.raises(dwex.ApiError):
+            client.sync('owner', 'dataset')
+
+    @responses.activate
+    def test_truncate_stream_records(self, client):
+        expected_resp = {'message': 'Success'}
+        responses.add(
+            'DELETE', '{}/streams/owner/dataset/stream/records'.format(
+                client._api_url),
+            json=expected_resp, status=200)
+
+        resp = client.truncate_stream_records('owner', 'dataset', 'stream')
+        assert_that(resp, equal_to(expected_resp))
+
+    @responses.activate
+    def test_truncate_stream_records_error(self, client):
+        responses.add(
+            'DELETE', '{}/streams/owner/dataset/stream/records'.format(
+                client._api_url),
+            status=400)
+        with pytest.raises(dwex.ApiError):
+            client.truncate_stream_records('owner', 'dataset', 'stream')
 
     @responses.activate
     def test_create_dataset(self, client):
