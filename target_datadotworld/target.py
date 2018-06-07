@@ -180,7 +180,7 @@ class TargetDataDotWorld(object):
                 self.config['dataset_owner'],
                 self.config['dataset_id'],
                 to_stream_id(msg.stream))
-        if msg.version != current_version:
+        if str(msg.version) != str(current_version):
             api.truncate_stream_records(
                 self.config['dataset_owner'],
                 self.config['dataset_id'],
