@@ -85,23 +85,18 @@ class TestTarget(object):
                          '9FsdsBZ03wx0A-QK1wq2tGyinaqUcjaotp-rnWCMoMOY83ivypu'
                          'B3FcjTGzJPFIGZbJsES_bx0itijwz5mQvg',
             'dataset_id': 'my-dataset',
-            'dataset_title': 'My Dataset',
-            'dataset_license': 'Other',
-            'dataset_owner': 'rafael',
-            'dataset_visibility': 'PRIVATE'
+            'dataset_owner': 'rafael'
         }
 
     @pytest.fixture(params=[
         ('api_token', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwcm9kLXVzZXItY2xpZW'
                       '50OnJhZmFlbCIsImlzcyI6ImFnZW50OnJhZmFlbDo6YjY1NTgxO'
                       'DItMjRkNy00MWZiLTkxNTAtNjZl'),
-        ('dataset_license', 'NOTALICENSE'),
         ('dataset_owner', 'x'),
         ('dataset_owner', 'Mr.X'),
-        ('dataset_visibility', 'Invisible'),
-        ('dataset_title', 'xyz' * 43),
-        ('dataset_title', 'xy'),
-        ('namespace', 'me too me too')
+        ('dataset_owner', 'Acme, Inc.'),
+        ('dataset_id', 'd'),
+        ('dataset_id', 'I am a non-conformist')
     ])
     def invalid_config(self, request, sample_config):
         invalid_config = copy(sample_config)
@@ -115,18 +110,6 @@ class TestTarget(object):
         }
         target = TargetDataDotWorld(minimal_config)
         expected_config = copy(sample_config)
-        expected_config['dataset_license'] = None
-        expected_config['dataset_title'] = expected_config['dataset_id']
-        assert_that(target.config, has_entries(expected_config))
-
-    def test_config_namespace(self, sample_config):
-        minimal_config = {
-            'api_token': sample_config['api_token'],
-            'namespace': sample_config['dataset_title']
-        }
-        target = TargetDataDotWorld(minimal_config)
-        expected_config = copy(sample_config)
-        expected_config['dataset_license'] = None
         assert_that(target.config, has_entries(expected_config))
 
     def test_config_complete(self, sample_config):
