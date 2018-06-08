@@ -71,11 +71,6 @@ def to_stream_id(stream_name):
     return kebab_case(stream_name)[0:95]
 
 
-def to_dataset_id(dataset_title):
-    """Convert any string into a valid dataset ID"""
-    return kebab_case(dataset_title)[0:95]
-
-
 def to_table_name(stream_id):
     """Convert a stream ID into a table name"""
     return stream_id.replace('-', '_')

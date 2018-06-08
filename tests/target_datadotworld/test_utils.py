@@ -26,7 +26,7 @@ from doublex import assert_that
 from hamcrest import equal_to
 
 from target_datadotworld.utils import to_chunks, to_jsonlines, \
-    to_stream_id, to_dataset_id
+    to_stream_id
 
 
 def test_to_jsonline():
@@ -54,11 +54,3 @@ async def test_to_chunks(records_queue):
 ])
 def test_to_streamid(text, streamid):
     assert_that(to_stream_id(text), equal_to(streamid))
-
-
-@pytest.mark.parametrize('text,datasetid', [
-    ('a' * 100, 'a' * 95),
-    ('a1!_b@2_c3', 'a-1-b-2-c-3')
-])
-def test_to_dataset_id(text, datasetid):
-    assert_that(to_dataset_id(text), equal_to(datasetid))

@@ -32,7 +32,7 @@ from target_datadotworld.api_client import ApiClient
 from target_datadotworld.exceptions import NotFoundError, TokenError, \
     ConfigError, MissingSchemaError, InvalidRecordError, \
     UnparseableMessageError, InvalidDatasetStateError
-from target_datadotworld.utils import to_dataset_id, to_stream_id
+from target_datadotworld.utils import to_stream_id
 
 #: Json schema specifying what is required in the config.json file
 CONFIG_SCHEMA = config_schema = {
@@ -49,45 +49,20 @@ CONFIG_SCHEMA = config_schema = {
         'dataset_id': {
             'description': 'Target dataset id',
             'type': 'string',
-            'pattern': '[a-z0-9](?:-(?!-)|[a-z0-9]){1,93}[a-z0-9]'
-        },
-        'dataset_title': {
-            'description': 'Title for new dataset created',
-            'type': 'string',
-            'minLength': 3,
-            'maxLength': 60
-        },
-        'dataset_license': {
-            'description': 'License for new dataset created',
-            'type': 'string',
-            'enum': [
-                'Public Domain', 'PDDL', 'CC-0', 'CC-BY',
-                'ODC-BY', 'CC-BY-SA', 'ODC-ODbL', 'CC BY-NC',
-                'CC BY-NC-SA', 'Other'
-            ]
-        },
-        'dataset_visibility': {
-            'description': 'Visibility for new dataset created',
-            'type': 'string',
-            'enum': ['OPEN', 'PRIVATE']
+            'pattern': '^[a-z0-9](?:-(?!-)|[a-z0-9]){1,93}[a-z0-9]$'
         },
         'dataset_owner': {
             'description': 'Account for new dataset created, '
                            'if not the owner of the token',
             'type': 'string',
-            'pattern': '[a-z0-9](?:-(?!-)|[a-z0-9]){1,29}[a-z0-9]'
+            'pattern': '^[a-z0-9](?:-(?!-)|[a-z0-9]){1,29}[a-z0-9]$'
         },
-        'namespace': {
-            'description': 'Target dataset title (reserved for Stitch)',
-            'type': 'string',
-            'minLength': 3,
-            'maxLength': 60
+        'disable_collection': {
+            'description': 'If False, disables Singer usage data collection',
+            'type': 'boolean'
         }
     },
-    'oneOf': [
-        {'required': ['api_token', 'namespace']},
-        {'required': ['api_token', 'dataset_id']}
-    ]
+    'required': ['api_token', 'dataset_id']
 }
 
 
@@ -170,9 +145,8 @@ class TargetDataDotWorld(object):
             self._api_client.create_dataset(
                 self.config['dataset_owner'],
                 self.config['dataset_id'],
-                title=self.config['dataset_title'],
-                visibility=self.config['dataset_visibility'],
-                license=self.config['dataset_license'])
+                title=self.config['dataset_id'],
+                visibility='PRIVATE')
 
     async def _handle_active_version_msg(self, msg, current_version, api):
         if current_version is None:
@@ -285,13 +259,6 @@ class TargetDataDotWorld(object):
             raise TokenError()
 
         self._config = copy(config)
-        self._config['dataset_id'] = (config.get('dataset_id') or
-                                      to_dataset_id(config.get('namespace')))
-        self._config['dataset_title'] = (config.get('dataset_title') or
-                                         config.get('namespace') or
-                                         config.get('dataset_id'))
+        self._config['dataset_id'] = config.get('dataset_id')
         self._config['dataset_owner'] = config.get(
             'dataset_owner', sub_parties[1])
-        self._config['dataset_visibility'] = config.get(
-            'dataset_visibility', 'PRIVATE')
-        self._config['dataset_license'] = config.get('dataset_license')
