@@ -22,7 +22,7 @@ from target_datadotworld import logger
 from requests import HTTPError
 
 
-async def send_usage_stats():
+def send_usage_stats():
     try:
         version = target_datadotworld.__version__
         resp = requests.get('http://collector.singer.io/i',

@@ -56,6 +56,10 @@ CONFIG_SCHEMA = config_schema = {
                            'if not the owner of the token',
             'type': 'string',
             'pattern': '^[a-z0-9](?:-(?!-)|[a-z0-9]){1,29}[a-z0-9]$'
+        },
+        'disable_collection': {
+            'description': 'If False, disables Singer usage data collection',
+            'type': 'boolean'
         }
     },
     'required': ['api_token', 'dataset_id']

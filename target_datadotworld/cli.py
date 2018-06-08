@@ -21,11 +21,13 @@ import asyncio
 import json
 import logging
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 
 import click
 
 from target_datadotworld import logger
 from target_datadotworld.exceptions import Error
+from target_datadotworld.singer_analytics import send_usage_stats
 from target_datadotworld.target import TargetDataDotWorld
 
 
@@ -55,6 +57,13 @@ def cli(ctx, config, debug, file):
     # noinspection PyBroadException
     try:
         config_obj = json.load(config)
+
+        if not config_obj.get('disable_collection', False):
+            logger.info('Sending version information to singer.io. ' +
+                        'To disable sending anonymous usage data, set ' +
+                        'the config parameter "disable_collection" to true')
+            loop.run_in_executor(ThreadPoolExecutor(max_workers=1),
+                                 send_usage_stats)
 
         target = TargetDataDotWorld(config_obj)
         data_file = file or click.get_text_stream('stdin')
