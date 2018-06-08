@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  test:
+  build:
     docker:
       - image: dataworld/pyenv-tox
 
@@ -22,27 +22,28 @@ jobs:
           name: tox
           command: tox --pre
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./*
-
       - save_cache:
           key: tox_cache-{{ checksum "tox.ini" }}
           paths:
             - .eggs
             - .tox
 
-  pypi-release:
+      - run:
+          name: build dist
+          command: python setup.py sdist bdist_wheel --universal
 
+      - store_artifacts:
+          path: ./dist
+          destination: dist
+
+  pypi-release:
     docker:
       - image: dataworld/pyenv-tox
 
     working_directory: /root/target-datadotworld
 
     steps:
-      - attach_workspace:
-          at: /root/target-datadotworld
+      - checkout
 
       - run:
           name: build dist
@@ -59,21 +60,17 @@ jobs:
     working_directory: /root/target-datadotworld
 
     steps:
-      - attach_workspace:
-          at: /root/target-datadotworld
-
-      - run:
-          name: define PACKAGE_VERSION
-          command: |
-            echo "export PACKAGE_VERSION=$(python -c "import pkg_resources; print(pkg_resources.get_distribution('target-datadotworld').version)")" >> $BASH_ENV
-            source $BASH_ENV
+      - checkout
 
       - setup_remote_docker:
           docker_layer_caching: true
 
       - run:
-          name: docker setup
-          command: curl -sSL https://get.docker.com/ | sh
+          name: define PACKAGE_VERSION
+          command: |
+            PACKAGE_VERSION=$(python setup.py -V)
+            echo "export PACKAGE_VERSION=$PACKAGE_VERSION" >> $BASH_ENV
+            source $BASH_ENV
 
       - run:
           name: docker build
@@ -88,20 +85,20 @@ jobs:
 
 workflows:
   version: 2
-  test-double-release:
+  build-and-release:
     jobs:
-      - test
+      - build
       - pypi-release:
           filters:
             branches:
               only:
                 - release
           requires:
-            - test
+            - build
       - docker-release:
           filters:
             branches:
               only:
                 - release
           requires:
-            - test
+            - build
