@@ -18,14 +18,14 @@
 # data.world, Inc.(http://data.world/).
 
 import json
+import time
 from copy import copy
 from os import path
 
 import pytest
-from doublex import assert_that, ProxySpy, called, Stub
-from hamcrest import has_entries, equal_to, not_none, only_contains, none
+from doublex import assert_that, ProxySpy, called, Stub, never
+from hamcrest import (has_entries, equal_to, not_none, only_contains, empty)
 from requests import Request, Response
-
 from target_datadotworld.api_client import ApiClient
 from target_datadotworld.exceptions import ConfigError, NotFoundError, \
     UnparseableMessageError, MissingSchemaError
@@ -47,17 +47,26 @@ class TestTarget(object):
                 self, owner, dataset, stream, queue, chunk_size, loop):
             while True:
                 item = await queue.get()
+                time.sleep(2)  # Required delay
                 queue.task_done()
                 if item is None:
                     break
 
-        monkeypatch.setattr(ApiClient,
-                            'connection_check', lambda self: True)
-        monkeypatch.setattr(ApiClient,
-                            'get_dataset', lambda self, owner, ds: {})
-        monkeypatch.setattr(ApiClient, 'create_dataset', create_dataset)
         monkeypatch.setattr(ApiClient, 'append_stream_chunked',
                             append_stream_chunked)
+        monkeypatch.setattr(ApiClient,
+                            'connection_check', lambda self: True)
+        monkeypatch.setattr(ApiClient, 'get_current_version',
+                            lambda self, o, d, s: 123456)
+        monkeypatch.setattr(ApiClient, 'create_dataset', create_dataset)
+        monkeypatch.setattr(ApiClient, 'get_dataset',
+                            lambda self, o, d: {'status': 'LOADED'})
+        monkeypatch.setattr(ApiClient, 'set_stream_schema',
+                            lambda self, o, d, s, **k: {})
+        monkeypatch.setattr(ApiClient, 'sync',
+                            lambda self, o, d: {})
+        monkeypatch.setattr(ApiClient, 'truncate_stream_records',
+                            lambda self, o, d, s: {})
 
         return ProxySpy(ApiClient('no_token_needed'))
 
@@ -138,9 +147,9 @@ class TestTarget(object):
     @pytest.mark.asyncio
     async def test_process_lines(self, target, api_client, test_files_path):
         with open(path.join(test_files_path, 'fixerio.jsonl')) as file:
-            result = await target.process_lines(file)
+            result = [s async for s in target.process_lines(file)]
             assert_that(api_client.append_stream_chunked, called().times(1))
-            assert_that(result, equal_to(
+            assert_that(result[0], equal_to(
                 json.loads('{"start_date": "2017-11-09"}')))
 
     @pytest.mark.asyncio
@@ -153,7 +162,8 @@ class TestTarget(object):
         monkeypatch.setattr(ApiClient, 'get_dataset', get_dataset)
 
         with open(path.join(test_files_path, 'fixerio.jsonl')) as file:
-            await target.process_lines(file)
+            async for _ in target.process_lines(file):  # noqa: F841
+                pass
             assert_that(api_client.create_dataset, called())
 
     @pytest.mark.asyncio
@@ -162,7 +172,8 @@ class TestTarget(object):
         with pytest.raises(UnparseableMessageError):
             with open(path.join(test_files_path,
                                 'fixerio-broken.jsonl')) as file:
-                await target.process_lines(file)
+                async for _ in target.process_lines(file):  # noqa: F841
+                    pass
 
     @pytest.mark.asyncio
     async def test_process_lines_missing_schema(self, target,
@@ -170,18 +181,51 @@ class TestTarget(object):
         with pytest.raises(MissingSchemaError):
             with open(path.join(test_files_path,
                                 'fixerio-noschema.jsonl')) as file:
-                await target.process_lines(file)
+                async for _ in target.process_lines(file):  # noqa: F841
+                    pass
 
     @pytest.mark.asyncio
     async def test_process_lines_multiple_streams(self, target, api_client,
                                                   test_files_path):
         with open(path.join(test_files_path,
                             'fixerio-multistream.jsonl')) as file:
-            await target.process_lines(file)
+            async for _ in target.process_lines(file):  # noqa: F841
+                pass
             assert_that(api_client.append_stream_chunked, called().times(2))
 
     @pytest.mark.asyncio
     async def test_process_no_state(self, target, test_files_path):
         with open(path.join(test_files_path, 'fixerio-nostate.jsonl')) as file:
-            result = await target.process_lines(file)
-            assert_that(result, none())
+            result = [s async for s in target.process_lines(file)]
+            assert_that(result, empty())
+
+    @pytest.mark.asyncio
+    async def test_process_multi_state(self, target, api_client,
+                                       test_files_path):
+        # State must be emitted **after** all async jobs have been completed
+        with open(path.join(test_files_path,
+                            'fixerio-multistate.jsonl')) as file:
+            num_states = 0
+            async for _ in target.process_lines(file):  # noqa: F841
+                num_states += 1
+                assert_that(api_client.append_stream_chunked,
+                            called().times(2 * num_states))
+            assert_that(num_states, equal_to(3))
+
+    @pytest.mark.asyncio
+    async def test_process_same_version(self, target, api_client,
+                                        test_files_path):
+        with open(path.join(test_files_path,
+                            'fixerio-same-version.jsonl')) as file:
+            async for _ in target.process_lines(file):  # noqa: F841
+                pass
+            assert_that(api_client.truncate_stream_records, never(called()))
+
+    @pytest.mark.asyncio
+    async def test_process_new_version(self, target, api_client,
+                                       test_files_path):
+        with open(path.join(test_files_path,
+                            'fixerio-new-version.jsonl')) as file:
+            async for _ in target.process_lines(file):  # noqa: F841
+                pass
+            assert_that(api_client.truncate_stream_records, called().times(1))

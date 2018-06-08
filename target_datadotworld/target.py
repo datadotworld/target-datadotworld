@@ -26,13 +26,12 @@ import simplejson
 import singer
 from jsonschema import validate, ValidationError, SchemaError
 from jwt import DecodeError
-from singer import metrics
-
+from singer import metrics, utils
 from target_datadotworld import logger
 from target_datadotworld.api_client import ApiClient
 from target_datadotworld.exceptions import NotFoundError, TokenError, \
     ConfigError, MissingSchemaError, InvalidRecordError, \
-    UnparseableMessageError, Error
+    UnparseableMessageError, InvalidDatasetStateError
 from target_datadotworld.utils import to_dataset_id, to_stream_id
 
 #: Json schema specifying what is required in the config.json file
@@ -103,19 +102,67 @@ class TargetDataDotWorld(object):
     async def process_lines(self, lines, loop=None):
 
         loop = loop or asyncio.get_event_loop()
+        api = self._api_client
 
-        state = None
         schemas = {}
+        active_versions = {}
+
         queues = {}
         consumers = {}
 
         logger.info('Checking network connectivity')
-        self._api_client.connection_check()  # Fail fast
+        api.connection_check()  # Fail fast
 
+        logger.info('Ensuring dataset exists and is in good state')
+        await self._fix_dataset()
+
+        with metrics.record_counter() as counter:
+            for line in lines:
+                try:
+                    msg = singer.parse_message(line)
+                except (json.JSONDecodeError, simplejson.JSONDecodeError) as e:
+                    raise UnparseableMessageError(line, str(e))
+
+                if isinstance(msg, singer.RecordMessage):
+                    await self._handle_record_msg(
+                        msg, schemas, active_versions, loop, queues, consumers)
+                    counter.increment()
+                    logger.debug('Line #{} in {} queued for upload'.format(
+                        counter.value, msg.stream))
+                elif isinstance(msg, singer.SchemaMessage):
+                    logger.info('Schema found for {}'.format(msg.stream))
+                    schemas[msg.stream] = await self._handle_schema_msg(msg)
+                elif isinstance(msg, singer.StateMessage):
+                    logger.info('State message found: {}'.format(msg.value))
+                    state = await self._handle_state_msg(msg, queues,
+                                                         consumers)
+                    queues = {}
+                    yield state
+                elif isinstance(msg, singer.ActivateVersionMessage):
+                    logger.info('Version message found: {}/{}'.format(
+                        msg.stream, msg.version))
+
+                    current_version = active_versions.get(msg.stream)
+                    active_version = await self._handle_active_version_msg(
+                        msg, current_version, api)
+                    active_versions[msg.stream] = active_version
+                else:
+                    logger.warn('Unrecognized message ({})'.format(msg))
+
+        await TargetDataDotWorld._drain_queues(queues, consumers)
+        self._api_client.sync(self.config['dataset_owner'],
+                              self.config['dataset_id'])
+
+    async def _fix_dataset(self):
         try:
-            self._api_client.get_dataset(
+            dataset = self._api_client.get_dataset(
                 self.config['dataset_owner'],
                 self.config['dataset_id'])
+
+            if dataset.get('status') != 'LOADED':
+                raise InvalidDatasetStateError(
+                    self.config['dataset_owner'],
+                    self.config['dataset_id'])
         except NotFoundError:
             logger.info('Creating new dataset {}/{}'.format(
                 self.config['dataset_owner'],
@@ -127,57 +174,87 @@ class TargetDataDotWorld(object):
                 visibility=self.config['dataset_visibility'],
                 license=self.config['dataset_license'])
 
-        with metrics.record_counter() as counter:
-            for line in lines:
-                try:
-                    msg = singer.parse_message(line)
-                except (json.JSONDecodeError, simplejson.JSONDecodeError) as e:
-                    raise UnparseableMessageError(line, str(e))
+    async def _handle_active_version_msg(self, msg, current_version, api):
+        if current_version is None:
+            current_version = api.get_current_version(
+                self.config['dataset_owner'],
+                self.config['dataset_id'],
+                to_stream_id(msg.stream))
+        if str(msg.version) != str(current_version):
+            api.truncate_stream_records(
+                self.config['dataset_owner'],
+                self.config['dataset_id'],
+                to_stream_id(msg.stream))
+        return msg.version
 
-                if isinstance(msg, singer.RecordMessage):
-                    if msg.stream not in schemas:
-                        raise MissingSchemaError(msg.stream)
-                    schema = schemas[msg.stream]
+    async def _handle_record_msg(self, msg, schemas, active_versions,
+                                 loop, queues, consumers):
+        if msg.stream not in schemas:
+            raise MissingSchemaError(msg.stream)
+        schema = schemas[msg.stream]
 
-                    try:
-                        validate(msg.record, schema)
-                    except (SchemaError, ValidationError) as e:
-                        raise InvalidRecordError(msg.stream, e.message)
+        try:
+            validate(msg.record, schema)
+        except (SchemaError, ValidationError) as e:
+            raise InvalidRecordError(msg.stream, e.message)
 
-                    if msg.stream not in queues:
-                        # Creates one queue per stream
-                        queue = asyncio.Queue(maxsize=self._batch_size)
-                        queues[msg.stream] = queue
+        if msg.stream not in queues:
+            # Creates one queue per stream
+            queue = asyncio.Queue(maxsize=self._batch_size)
+            queues[msg.stream] = queue
 
-                        # Schedules one consumer per queue
-                        consumers[msg.stream] = asyncio.ensure_future(
-                            self._api_client.append_stream_chunked(
-                                self.config['dataset_owner'],
-                                self.config['dataset_id'],
-                                to_stream_id(msg.stream),
-                                queue,
-                                self._batch_size, loop=loop), loop=loop)
+            # Schedules one consumer per queue
+            consumers[msg.stream] = asyncio.ensure_future(
+                self._api_client.append_stream_chunked(
+                    self.config['dataset_owner'],
+                    self.config['dataset_id'],
+                    to_stream_id(msg.stream),
+                    queue,
+                    self._batch_size, loop=loop), loop=loop)
 
-                    # Add record to queue
-                    await queues[msg.stream].put(msg.record)
-                    counter.increment()
-                    logger.debug('Line #{} in {} queued for upload'.format(
-                        counter.value, msg.stream))
-                elif isinstance(msg, singer.SchemaMessage):
-                    logger.info('Schema found for {}'.format(msg.stream))
-                    schemas[msg.stream] = msg.schema
-                    # Ignoring key_properties as the concept of primary keys
-                    # currently does not apply to data.world
-                elif isinstance(msg, singer.StateMessage):
-                    logger.info('State message found: {}'.format(msg.value))
-                    state = msg.value
-                elif isinstance(msg, singer.ActivateVersionMessage):
-                    logger.info('Version message found: {}/{}'.format(
-                        msg.stream, msg.version))
-                    # TODO Handle Active Version Messages (GH Issue #2)
-                else:
-                    raise Error('Unrecognized message'.format(msg))
+        # Add record to queue
+        record = msg.record
+        record.update({
+            'singer_timestamp': utils.strftime(
+                msg.time_extracted or utils.now()),
+            'singer_version': active_versions.get(msg.stream)
+        })
+        await queues[msg.stream].put(record)
 
+    async def _handle_schema_msg(self, msg):
+        if (msg.key_properties is not None and
+                len(msg.key_properties) > 0):
+
+            bookmark_properties = msg.bookmark_properties
+            if (bookmark_properties is None or
+                    len(bookmark_properties) > 0):
+                logger.warn(
+                    'Found missing or multiple bookmark '
+                    'properties for stream {} when data.world '
+                    'requires a single field. Records will be '
+                    'sorted in the order that they were '
+                    'extracted.'.format(msg.stream))
+                bookmark_properties = 'singer_timestamp'
+
+            logger.info('Setting data.world schema {}/{}'.format(
+                msg.key_properties, bookmark_properties))
+
+            self._api_client.set_stream_schema(
+                self.config['dataset_owner'],
+                self.config['dataset_id'],
+                to_stream_id(msg.stream),
+                primaryKeyFields=msg.key_properties,
+                sequenceField=bookmark_properties,
+                updateMethod='TRUNCATE')
+
+        return msg.schema
+
+    async def _handle_state_msg(self, msg, queues, consumers):
+        await TargetDataDotWorld._drain_queues(queues, consumers)
+        return msg.value
+
+    @staticmethod
+    async def _drain_queues(queues, consumers):
         for q in queues:
             # Mark the end of each queue
             await queues[q].put(None)
@@ -185,8 +262,6 @@ class TargetDataDotWorld(object):
             await queues[q].join()
             # Make sure consumers are done
             await consumers[q]
-
-        return state
 
     @property
     def config(self):

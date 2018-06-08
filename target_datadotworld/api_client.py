@@ -26,10 +26,9 @@ import requests
 from requests.adapters import HTTPAdapter, BaseAdapter
 from requests.exceptions import RequestException
 from singer import metrics
-
 from target_datadotworld import logger
 from target_datadotworld.exceptions import convert_requests_exception
-from target_datadotworld.utils import to_chunks, to_jsonlines
+from target_datadotworld.utils import to_chunks, to_jsonlines, to_table_name
 
 MAX_TRIES = 10  # necessary to configure backoff decorator
 
@@ -126,7 +125,6 @@ class ApiClient(object):
 
         :raises ApiError: Failure invoking data.world API
         """
-
         with metrics.Counter(
                 'batch_count', tags={'stream': stream}) as counter:
 
@@ -141,10 +139,11 @@ class ApiClient(object):
                                         len(chunk), counter.value, stream))
 
                         if pending_task is not None:
-                            # Force chunks to be appended sequentially
+                            # Sequentially processes chunks of the same stream
                             await pending_task
 
                         # Call API on separate thread
+                        # Parallel processes different streams
                         pending_task = loop.run_in_executor(
                             self._executor,
                             functools.partial(self.append_stream,
@@ -162,28 +161,6 @@ class ApiClient(object):
             if delayed_exception is not None:
                 raise delayed_exception
 
-    def get_dataset(self, owner, dataset):
-        """Fetch dataset info
-
-        :param owner: User or organization ID of the owner of the dataset
-        :type owner: str
-        :param dataset: Dataset ID
-        :type dataset: str
-
-        :returns: Dataset object
-        :rtype: object
-        """
-        with metrics.http_request_timer('dataset'):
-            try:
-                resp = self._session.get(
-                    '{}/datasets/{}/{}'.format(self._api_url, owner, dataset),
-                    timeout=(self._conn_timeout, self._read_timeout)
-                )
-                resp.raise_for_status()
-                return resp.json()
-            except RequestException as e:
-                raise convert_requests_exception(e)
-
     def create_dataset(self, owner, dataset, **kwargs):
         """Create a new dataset
 
@@ -197,6 +174,8 @@ class ApiClient(object):
         :returns: Response object
         :rtype: object
 
+        :raises ApiError: Failure invoking data.world API
+
         .. seealso:: `Dataset properties
             <https://apidocs.data.world/v0/models/datasetcreaterequest>`_
         """
@@ -205,6 +184,149 @@ class ApiClient(object):
                 resp = self._session.put(
                     '{}/datasets/{}/{}'.format(self._api_url, owner, dataset),
                     json=kwargs,
+                    timeout=(self._conn_timeout, self._read_timeout)
+                )
+                resp.raise_for_status()
+                return resp.json()
+            except RequestException as e:
+                raise convert_requests_exception(e)
+
+    def get_dataset(self, owner, dataset):
+        """Fetch dataset info
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+
+        :returns: Dataset object
+        :rtype: object
+
+        :raises ApiError: Failure invoking data.world API
+        """
+        with metrics.http_request_timer('dataset'):
+            try:
+                resp = self._session.get(
+                    '{}/datasets/{}/{}'.format(self._api_url, owner, dataset),
+                    timeout=(self._conn_timeout, self._read_timeout)
+                )
+                resp.raise_for_status()
+                return resp.json()
+            except RequestException as e:
+                raise convert_requests_exception(e)
+
+    def get_current_version(self, owner, dataset, stream):
+        """Returns version of a sample record from a given stream
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+        :param stream: Stream ID
+        :type stream: str
+
+        :returns: Response object
+        :rtype: object
+
+        :raises ApiError: Failure invoking data.world API
+        """
+        with metrics.http_request_timer('fetch_latest_version'):
+            try:
+                resp = self._session.get(
+                    '{}/sql/{}/{}'.format(self._api_url, owner, dataset),
+                    params={
+                        'query': 'SELECT * '
+                                 'FROM `{}`.`{}`.`{}` '
+                                 'LIMIT 1'.format(
+                                     owner, dataset, to_table_name(stream))},
+                    timeout=(self._conn_timeout, self._read_timeout))
+                resp.raise_for_status()
+                rows = resp.json()
+                return (None if len(rows) == 0
+                        else rows[0].get('singer_version'))
+            except RequestException as e:
+                if e.response.status_code == 400:
+                    logger.warn('Unable fetch latest version. '
+                                'Expected if table doesn\'t exist yet. '
+                                'Server message: {}'.format(e.response.text))
+                    return None
+                raise convert_requests_exception(e)
+
+    def set_stream_schema(self, owner, dataset, stream, **kwargs):
+        """Sets schema of a stream in a data.world dataset
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+        :param stream: Stream ID
+        :type stream: str
+        :param kwargs: Schema properties (primaryKeyFields, sequenceField,
+        updateMethod)
+        :type kwargs: dict
+
+        :returns: Response object
+        :rtype: object
+
+        :raises ApiError: Failure invoking data.world API
+        """
+        with metrics.http_request_timer('set_stream_schema'):
+            try:
+                resp = self._session.patch(
+                    '{}/streams/{}/{}/{}/schema'.format(self._api_url, owner,
+                                                        dataset, stream),
+                    json=kwargs,
+                    timeout=(self._conn_timeout, self._read_timeout)
+                )
+                resp.raise_for_status()
+                return resp.json()
+            except RequestException as e:
+                raise convert_requests_exception(e)
+
+    def sync(self, owner, dataset):
+        """Triggers ingest of streamed records
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+
+        :returns: Response object
+        :rtype: object
+
+        :raises ApiError: Failure invoking data.world API
+        """
+        with metrics.http_request_timer('sync'):
+            try:
+                resp = self._session.post(
+                    '{}/datasets/{}/{}/sync'.format(
+                        self._api_url, owner, dataset),
+                    timeout=(self._conn_timeout, self._read_timeout))
+                resp.raise_for_status()
+                return resp.json()
+            except RequestException as e:
+                raise convert_requests_exception(e)
+
+    def truncate_stream_records(self, owner, dataset, stream):
+        """Truncates records of a stream in a data.world dataset
+
+        :param owner: User or organization ID of the owner of the dataset
+        :type owner: str
+        :param dataset: Dataset ID
+        :type dataset: str
+        :param stream: Stream ID
+        :type stream: str
+
+        :returns: Response object
+        :rtype: object
+
+        :raises ApiError: Failure invoking data.world API
+        """
+        with metrics.http_request_timer('truncate_stream_records'):
+            try:
+                resp = self._session.delete(
+                    '{}/streams/{}/{}/{}/records'.format(self._api_url, owner,
+                                                         dataset, stream),
                     timeout=(self._conn_timeout, self._read_timeout)
                 )
                 resp.raise_for_status()

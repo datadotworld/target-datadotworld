@@ -76,7 +76,13 @@ def to_dataset_id(dataset_title):
     return kebab_case(dataset_title)[0:95]
 
 
+def to_table_name(stream_id):
+    """Convert a stream ID into a table name"""
+    return stream_id.replace('-', '_')
+
+
 # lodash/pydash style kebab_case implementation
+
 
 UPPER = '[A-Z\\xC0-\\xD6\\xD8-\\xDE]'
 LOWER = '[a-z\\xDf-\\xF6\\xF8-\\xFF]+'
