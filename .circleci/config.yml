@@ -1,14 +1,10 @@
 version: 2
 jobs:
-  build:
+  test:
     docker:
       - image: dataworld/pyenv-tox
 
     working_directory: /root/target-datadotworld
-
-    environment:
-      PRERELEASE_BRANCH: prerelease
-      RELEASE_BRANCH: release
 
     steps:
       - checkout
@@ -26,23 +22,86 @@ jobs:
           name: tox
           command: tox --pre
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./*
+
       - save_cache:
           key: tox_cache-{{ checksum "tox.ini" }}
           paths:
             - .eggs
             - .tox
 
-      - deploy:
-          name: Pre-release to pypi
-          command: |
-            if [[ "${CIRCLE_BRANCH}" =~ ^(${PRERELEASE_BRANCH})$ ]]; then
-              echo 'Do a prerelease with twine here'
-            fi
+  pypi-release:
+
+    docker:
+      - image: dataworld/pyenv-tox
+
+    working_directory: /root/target-datadotworld
+
+    steps:
+      - attach_workspace:
+          at: /root/target-datadotworld
+
+      - run:
+          name: build dist
+          command: python setup.py sdist bdist_wheel --universal
 
       - deploy:
-          name: Release to pypi
+          name: pypi release
+          command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
+
+  docker-release:
+    docker:
+      - image: dataworld/pyenv-tox
+
+    working_directory: /root/target-datadotworld
+
+    steps:
+      - attach_workspace:
+          at: /root/target-datadotworld
+
+      - run:
+          name: define PACKAGE_VERSION
           command: |
-            if [[ "${CIRCLE_BRANCH}" =~ ^(${RELEASE_BRANCH})$ ]]; then
-              python setup.py sdist bdist_wheel --universal
-              twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
-            fi
+            echo "export PACKAGE_VERSION=$(python -c "import pkg_resources; print(pkg_resources.get_distribution('target-datadotworld').version)")" >> $BASH_ENV
+            source $BASH_ENV
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: docker setup
+          command: curl -sSL https://get.docker.com/ | sh
+
+      - run:
+          name: docker build
+          command: docker build -t dataworld/target-datadotworld -t dataworld/target-datadotworld:$PACKAGE_VERSION .
+
+      - deploy:
+          name: docker-hub release
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push dataworld/target-datadotworld:latest
+            docker push dataworld/target-datadotworld:$PACKAGE_VERSION
+
+workflows:
+  version: 2
+  test-double-release:
+    jobs:
+      - test
+      - pypi-release:
+          filters:
+            branches:
+              only:
+                - release
+          requires:
+            - test
+      - docker-release:
+          filters:
+            branches:
+              only:
+                - release
+          requires:
+            - test
