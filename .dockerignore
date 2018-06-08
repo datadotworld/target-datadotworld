@@ -1,0 +1,8 @@
+.cache
+.circleci
+.eggs
+.idea
+.pytest_cache
+.tox
+dist
+*.egg-info
